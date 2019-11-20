@@ -1,0 +1,36 @@
+{
+    "name": "phaser3-typescript-project-template",
+    "version": "1.0.0",
+    "description": "A Phaser 3 TypeScript Project Template",
+    "main": "src/game.ts",
+    "scripts": {
+        "build": "rollup -c"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/photonstorm/phaser3-typescript-project-template.git"
+    },
+    "author": "Richard Davey <rich@photonstorm.com> (http://www.photonstorm.com)",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/photonstorm/phaser3-typescript-project-template/issues"
+    },
+    "homepage": "https://github.com/photonstorm/phaser3-typescript-project-template#readme",
+    "dependencies": {
+        "@babel/core": "^7.7.2",
+        "@babel/plugin-proposal-class-properties": "^7.7.0",
+        "@babel/plugin-proposal-numeric-separator": "^7.2.0",
+        "@babel/plugin-proposal-object-rest-spread": "^7.6.2",
+        "@babel/preset-env": "^7.7.1",
+        "@babel/preset-typescript": "^7.7.2",
+        "@rollup/plugin-replace": "^2.2.1",
+        "babel-preset-minify": "^0.5.1",
+        "phaser": "^3.20.1",
+        "rollup": "^1.27.2",
+        "rollup-plugin-babel": "^4.3.3",
+        "rollup-plugin-commonjs": "^10.1.0",
+        "rollup-plugin-node-resolve": "^5.2.0",
+        "rollup-plugin-uglify": "^6.0.3",
+        "typescript": "^3.7.2"
+    }
+}
