@@ -16,7 +16,7 @@ export default {
     //  You can also use 'umd' if you need to ingest your game into another system.
     //  The 'intro' property can be removed if using Phaser 3.21 or above. Keep it for earlier versions.
     output: {
-        file: './dist/game.js',
+        file: './dist/js/index.js',
         name: 'MyGame',
         format: 'iife',
         sourcemap: true,
