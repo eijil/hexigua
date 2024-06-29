@@ -73,6 +73,7 @@ class Demo extends Phaser.Scene {
         })
         //end game
         this.events.once('endGame', () => {
+            
             this.input.off('pointerdown')
             this.input.off('pointermove')
             this.input.off('pointerup')
@@ -86,7 +87,7 @@ class Demo extends Phaser.Scene {
                 duration: 300,
                 onComplete: () => {
                     this.gameModal.get('endModal').setVisible(true)
-                    API.event.onComplete && API.event.onComplete()
+                    API.event.onGameOver && API.event.onGameOver()
                 }
             })
         })
@@ -206,8 +207,6 @@ class Demo extends Phaser.Scene {
             duration: 200
         })
         return fruit
-
-
     }
     onCompose(bodyA, bodyB) {
         const { x, y } = bodyA.position

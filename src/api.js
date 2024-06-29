@@ -3,7 +3,8 @@ const API = {
         onStart: null,
         onProgress: null,
         onComplete: null,
-        onUpdateScore: null
+        onUpdateScore: null,
+        onGameOver: null
     }
     
 }
