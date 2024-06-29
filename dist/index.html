@@ -6,10 +6,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <style>*{margin:0;padding:0;}.container{overflow:hidden}</style>
     <script src="./js/index.js"></script>
+    <style>
+        .menu{position:fixed;right:0;top:0;background:rgba(0,0,0,.6);background:rgba(0,0,0,.2);padding:8px;}
+        .menu span{display:block;font-size:12px;line-height:22px;padding:0 6px;color:#fff;margin-bottom:4px;background:rgba(0,0,0,.2);}
+    </style>
 </head>
-
 <body>
     <div class="container"></div>
+    <div class="menu">
+        <span data-name="init" onclick="">init</span>
+        <span data-name="init3" onclick="">初始化</span>
+    </div>
 </body>
 
 </html>
+<script>
+    Array.prototype.forEach.call(document.querySelectorAll('.menu span'), (item, index) => {
+        item.onclick = function(e){
+            let name = e.target.getAttribute('data-name')
+            switch(name) {
+                case 'init': 
+                    MyGame.init({
+                        event: {
+                            onStart: function(){
+                                console.log('onStart')
+                            },
+                            onProgress: function(){
+                                console.log('onProgress')
+                            },
+                            onComplete: function(){
+                                console.log('onComplete')
+                            },
+                        }
+                        
+                    })
+                    break
+                default:
+                    console.log(name)
+            }
+        }
+    })
+    
+  
+</script>

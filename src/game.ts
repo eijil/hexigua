@@ -1,5 +1,7 @@
 import 'phaser';
 import Preload from './preload'
+import API from './api'
+
 const WINDOW_WIDTH = window.innerWidth
 const WINDOW_HEIGHT = window.innerHeight
 const SCALE = 0.5
@@ -7,9 +9,7 @@ const Ratio = window.devicePixelRatio
 
 const endLineY = 40 * Ratio
 
-
-
-export default class Demo extends Phaser.Scene {
+class Demo extends Phaser.Scene {
 
     private enableAdd: boolean = true
     private score: number = 0
@@ -90,8 +90,6 @@ export default class Demo extends Phaser.Scene {
 
         })
 
-
-
         this.events.on('success', () => {
             this.createParticles()
         })
@@ -161,7 +159,7 @@ export default class Demo extends Phaser.Scene {
    * @param key 瓜的类型
    */
     createFruite(x: number, y: number, isStatic = true, key?: string,) {
-
+        if(API.event.onStart) API.event.onStart()
         if (!key) {
             //顶部落下的瓜前5个随机
             key = `${Phaser.Math.Between(1, this.randomLevel)}`
@@ -172,8 +170,8 @@ export default class Demo extends Phaser.Scene {
             radius: (fruit.width / 2)
         }, {
             label: key,
-            restitution: 0.3,
-            friction:0.1,
+            restitution: 0.3, // 反弹
+            friction:0.1, // 摩擦系数
             isStatic,
           
         })
@@ -244,6 +242,7 @@ export default class Demo extends Phaser.Scene {
 
     }
     restart() {
+        
         this.scene.restart()
         this.score = 0;
         this.randomLevel = 5
@@ -283,28 +282,41 @@ export default class Demo extends Phaser.Scene {
     }
 }
 
+export default {
+    init({ event }){
 
-const config = {
-    type: Phaser.AUTO,
-    backgroundColor: '#ffe8a3',
-    scale: {
-        parent: 'container',
-        mode: Phaser.Scale.FIT,
-    },
-    width: window.innerWidth,
-    height: window.innerHeight,
-    physics: {
-        default: 'matter',
-        matter: {
-            //enableSleeping: true,
-            gravity:{ 
-                x:0,
-                y:3
-            },
-            //debug: true
+        if(event){
+            for(let name in API.event){
+                if(event[name]) API.event[name] = event[name]
+            }
         }
-    },
-    scene: [Preload, Demo]
-};
 
-const game = new Phaser.Game(config);
+        const config = {
+            type: Phaser.AUTO,
+            backgroundColor: '#ffe8a3',
+            scale: {
+                parent: 'container',
+                mode: Phaser.Scale.FIT,
+            },
+            width: window.innerWidth,
+            height: window.innerHeight,
+            physics: {
+                default: 'matter',
+                matter: {
+                    //enableSleeping: true,
+                    gravity:{ 
+                        x:0,
+                        y:3
+                    },
+                    //debug: true
+                }
+            },
+            scene: [Preload, Demo]
+        };
+        
+        const game = new Phaser.Game(config);
+
+
+
+    },
+}

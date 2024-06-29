@@ -1,19 +1,20 @@
 import 'phaser';
-
+import Api from './api'
 
 const CDN = 'https://storage.360buyimg.com/web-static/hexigua'
 
 export default class Preload extends Phaser.Scene {
     constructor() {
+        console.log('=== preload')
         super('preload');
     }
     preload() {
 
         this.load.on('progress', function (value) {
-            console.log(value)
+            Api.event.onProgress && Api.event.onProgress(value)
         })
-        this.load.on('complete', function () {
-            console.log('file complete')
+        this.load.on('complete', function (value) {
+            Api.event.onComplete && Api.event.onComplete(value)
         })
         this.load.image('ground', CDN+'/ground.png')
         this.load.image('endLine', CDN+'/endLine.png')
