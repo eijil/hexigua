@@ -257,7 +257,6 @@ class Demo extends Phaser.Scene {
 
     }
     restart() {
-        
         this.scene.restart()
         this.score = 0;
         this.randomLevel = 5
@@ -336,6 +335,6 @@ export default {
     },
     // 如果结束页面不需要集成在游戏代码内 ，可通过onRestart来重置游戏
     onRestart(){
-        console.log(game)
+        game.scene.scenes[1].restart()
     }
 }

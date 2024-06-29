@@ -15,7 +15,7 @@
     <div class="container"></div>
     <div class="menu">
         <span data-name="init" onclick="">init</span>
-        <span data-name="init3" onclick="">初始化</span>
+        <span data-name="restart" onclick="">restart</span>
     </div>
 </body>
 
@@ -46,6 +46,9 @@
                         }
                         
                     })
+                    break
+                case 'restart': // 重置游戏
+                    MyGame.onRestart()
                     break
                 default:
                     console.log(name)
