@@ -39,6 +39,7 @@ class Demo extends Phaser.Scene {
         const x = WINDOW_WIDTH / 2
         const y = 20 * Ratio
         let fruit = this.createFruite(x, y)
+        let fruitTween = null
 
 
         //得分
@@ -73,6 +74,8 @@ class Demo extends Phaser.Scene {
         //end game
         this.events.once('endGame', () => {
             this.input.off('pointerdown')
+            this.input.off('pointermove')
+            this.input.off('pointerup')
             this.tweens.add({
                 targets: endLineSprite,
                 alpha: {
@@ -84,10 +87,7 @@ class Demo extends Phaser.Scene {
                 onComplete: () => {
                     this.gameModal.get('endModal').setVisible(true)
                 }
-
             })
-
-
         })
 
         this.events.on('success', () => {
@@ -96,24 +96,42 @@ class Demo extends Phaser.Scene {
 
         //点击屏幕
         this.input.on('pointerdown', (point: Phaser.Types.Math.Vector2Like) => {
-            
-            if (this.enableAdd) {
-                this.enableAdd = false
-                this.tweens.add({
-                    targets: fruit,
-                    x: point.x,
-                    duration: 100,
-                    ease: 'Power1',
-                    onComplete: () => {
-                        fruit.setAwake()
-                        fruit.setStatic(false)
-                        setTimeout(() => {
-                            fruit = this.createFruite(x, y)
-                            this.enableAdd = true
-                        }, 1000);
-                    }
-                })
+            if(!this.enableAdd) return
+            fruitTween = this.tweens.add({
+                targets: fruit,
+                props: {
+                    x: { value: point.x, ease: 'Power3' },
+                },
+                duration: 150,
+                // onComplete: () => this.onCompose(bodyA, bodyB)
+            })
+        })
+        
+        this.input.on('pointermove', (point: Phaser.Types.Math.Vector2Like) => {
+            if(!this.enableAdd) return
+            if(fruitTween) {
+                fruitTween.stop()
+                // fruitTween.seek(1)
             }
+            if(fruit) fruit.x = point.x
+        })
+
+        this.input.on('pointerup', (point: Phaser.Types.Math.Vector2Like) => {
+            if(!this.enableAdd) return
+            this.enableAdd = false
+
+            if(fruitTween) {
+                fruitTween.stop()
+                // fruitTween.seek(1)
+            }
+            fruit.x = point.x
+
+            fruit.setAwake()
+            fruit.setStatic(false)
+            setTimeout(() => {
+                fruit = this.createFruite(x, y)
+                this.enableAdd = true
+            }, 1000);
         })
 
         const onCollisionStart = (event: any) => {
@@ -159,7 +177,6 @@ class Demo extends Phaser.Scene {
    * @param key 瓜的类型
    */
     createFruite(x: number, y: number, isStatic = true, key?: string,) {
-        if(API.event.onStart) API.event.onStart()
         if (!key) {
             //顶部落下的瓜前5个随机
             key = `${Phaser.Math.Between(1, this.randomLevel)}`
