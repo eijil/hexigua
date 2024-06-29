@@ -247,7 +247,7 @@ class Demo extends Phaser.Scene {
         tryAgain.setScale(0.5)
         yes.setScale(0.5)
         yes.setInteractive()
-        yes.on('pointerdown', () => {
+        yes.on('pointerup', () => {
             this.restart()
         })
         no.setScale(0.5)
