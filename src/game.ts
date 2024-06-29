@@ -86,6 +86,7 @@ class Demo extends Phaser.Scene {
                 duration: 300,
                 onComplete: () => {
                     this.gameModal.get('endModal').setVisible(true)
+                    API.event.onComplete && API.event.onComplete()
                 }
             })
         })
@@ -163,8 +164,6 @@ class Demo extends Phaser.Scene {
         //碰撞事件
         this.matter.world.on('collisionstart', onCollisionStart)
 
-     
-
         this.createEndModal()
 
     }
@@ -181,6 +180,7 @@ class Demo extends Phaser.Scene {
             //顶部落下的瓜前5个随机
             key = `${Phaser.Math.Between(1, this.randomLevel)}`
         }
+        // key = '11'
         const fruit = this.matter.add.image(x, y, key)
         fruit.setBody({
             type: 'circle',
@@ -188,9 +188,8 @@ class Demo extends Phaser.Scene {
         }, {
             label: key,
             restitution: 0.3, // 反弹
-            friction:0.1, // 摩擦系数
+            friction: 0.1, // 摩擦系数
             isStatic,
-          
         })
         fruit.setScale(SCALE)
         fruit.setSleepEvents(true, true);
@@ -232,10 +231,10 @@ class Demo extends Phaser.Scene {
             this.randomLevel = 5 + add
         }
         this.scoreText.setText(this.score)
+        API.event.onUpdateScore && API.event.onUpdateScore(this.score)
 
     }
     createEndModal() {
-
 
         const modalContainer = this.creatMask()
         const centerX = WINDOW_WIDTH / 2
@@ -299,6 +298,8 @@ class Demo extends Phaser.Scene {
     }
 }
 
+let game = null
+
 export default {
     init({ event }){
 
@@ -331,9 +332,11 @@ export default {
             scene: [Preload, Demo]
         };
         
-        const game = new Phaser.Game(config);
-
-
+        game = new Phaser.Game(config);
 
     },
+    // 如果结束页面不需要集成在游戏代码内 ，可通过onRestart来重置游戏
+    onRestart(){
+        console.log(game)
+    }
 }

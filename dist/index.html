@@ -29,13 +29,16 @@
                     MyGame.init({
                         event: {
                             onStart: function(){
-                                console.log('onStart')
+                                console.log('开始游戏')
                             },
                             onProgress: function(){
-                                console.log('onProgress')
+                                console.log('加载进度')
                             },
                             onComplete: function(){
-                                console.log('onComplete')
+                                console.log('游戏结束')
+                            },
+                            onUpdateScore: function(score){
+                                console.log('成绩：', score)
                             },
                         }
                         

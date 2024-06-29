@@ -1,8 +1,9 @@
 const API = {
     event: {
-        onStart: true,
-        onProgress: true,
-        onComplete: true,
+        onStart: null,
+        onProgress: null,
+        onComplete: null,
+        onUpdateScore: null
     }
     
 }
