@@ -187,8 +187,8 @@ class Demo extends Phaser.Scene {
             radius: (fruit.width / 2)
         }, {
             label: key,
-            restitution: 0.3, // 反弹
-            friction: 0.1, // 摩擦系数
+            restitution: 0.1, // 0.3, // 反弹
+            friction: 1, // 0.1, // 摩擦系数
             isStatic,
         })
         fruit.setScale(SCALE)
