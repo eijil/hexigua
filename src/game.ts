@@ -87,7 +87,7 @@ class Demo extends Phaser.Scene {
                 duration: 300,
                 onComplete: () => {
                     this.gameModal.get('endModal').setVisible(true)
-                    API.event.onGameOver && API.event.onGameOver()
+                    API.event.onGameOver && API.event.onGameOver(this.score)
                 }
             })
         })
@@ -181,7 +181,7 @@ class Demo extends Phaser.Scene {
             //顶部落下的瓜前5个随机
             key = `${Phaser.Math.Between(1, this.randomLevel)}`
         }
-        // key = '11'
+        // key = key == "1" ? "11" : key
         const fruit = this.matter.add.image(x, y, key)
         fruit.setBody({
             type: 'circle',
@@ -300,7 +300,10 @@ let game = null
 
 export default {
     init({ event }){
-
+        if(game) {
+            console.log('init 函数只能执行一次')
+            return
+        }
         if(event){
             for(let name in API.event){
                 if(event[name]) API.event[name] = event[name]

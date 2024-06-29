@@ -37,8 +37,8 @@
                             onComplete: function(){
                                 console.log('加载完成')
                             },
-                            onGameOver: function(){
-                                console.log('游戏结束')
+                            onGameOver: function(score){
+                                console.log('游戏结束', score)
                             },
                             onUpdateScore: function(score){
                                 console.log('成绩：', score)
