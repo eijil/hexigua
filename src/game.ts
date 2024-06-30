@@ -126,8 +126,9 @@ class Demo extends Phaser.Scene {
                 fruitTween.stop()
                 // fruitTween.seek(1)
             }
-            fruit.x = point.x
-
+            let size = fruit.width / 2 * SCALE
+            fruit.x = Math.max(size, Math.min(WINDOW_WIDTH - size, point.x))
+            
             fruit.setAwake()
             fruit.setStatic(false)
             setTimeout(() => {
