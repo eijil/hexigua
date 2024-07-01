@@ -29,6 +29,11 @@ export default class Preload extends Phaser.Scene {
         }
         this.load.atlas('success', CDN+'/confi.png', CDN+'/confi.json');
 
+        this.load.audio('合成', '/media/合成.mp3');
+        this.load.audio('庆祝', '/media/庆祝.mp3');
+        this.load.audio('炸', '/media/炸.mp3');
+        this.load.audio('down', '/media/down.mp3');
+
     }
     create() {
         this.scene.launch('demo')

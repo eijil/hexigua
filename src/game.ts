@@ -31,7 +31,7 @@ class Demo extends Phaser.Scene {
 
         //添加地面 宽度加40 防止1号水果掉到地面之下
         const groundSprite = this.add.tileSprite(WINDOW_WIDTH / 2, WINDOW_HEIGHT - 5 * Ratio, WINDOW_WIDTH + 40, 127, 'ground')
-        this.matter.add.gameObject(groundSprite, { isStatic: true,  })
+        this.matter.add.gameObject(groundSprite, { isStatic: true, label: 'ground'  })
 
 
         //初始化一个水果
@@ -54,12 +54,12 @@ class Demo extends Phaser.Scene {
 
         // //设置物理效果
         this.matter.add.gameObject(endLineSprite, {
+            label: 'endLine',
             //静止
             isStatic: true,
             //传感器模式，可以检测到碰撞，但是不会对物体产品效果
             isSensor: true,
             //物体碰撞回调,
-        
             onCollideActiveCallback: (e,body) => {
                 if (enableCollide) {
                     if (e.bodyB.velocity.y < 1 && e.bodyA.velocity.y < 1){
@@ -105,7 +105,7 @@ class Demo extends Phaser.Scene {
                     x: { value: point.x, ease: 'Power3' },
                 },
                 duration: 150,
-                // onComplete: () => this.onCompose(bodyA, bodyB)
+                // onComplete: () => {}
             })
         })
         
@@ -146,6 +146,7 @@ class Demo extends Phaser.Scene {
                 const { bodyA, bodyB } = pair
                 const same = bodyA.label === bodyB.label && bodyA.label !== '11'
                 const live = !bodyA.isStatic && !bodyB.isStatic
+                
                 if (same && live) {
                     if (bodyA.label === '10') {
                         this.events.emit('success')
@@ -162,8 +163,18 @@ class Demo extends Phaser.Scene {
                         duration: 150,
                         onComplete: () => this.onCompose(bodyA, bodyB)
                     })
-
+                    this.sound.add('合成').play();
                 }
+                const has = bodyA.label !== 'endLine' && bodyB.label !== 'endLine'
+                if(has && bodyB.gameObject && bodyB.gameObject.getData('callOnce') === true){
+                    bodyB.gameObject.setData('callOnce', false)
+                    this.sound.add('down').play(); // { volume: 2 }
+                }else if(has && bodyA.gameObject && bodyA.gameObject.getData('callOnce') === true){
+                    bodyA.gameObject.setData('callOnce', false)
+                    this.sound.add('down').play(); // { volume: 2 }
+                }
+                
+                // 
             })
         }
         //碰撞事件
@@ -196,6 +207,7 @@ class Demo extends Phaser.Scene {
             friction: 1, // 0.1, // 摩擦系数
             isStatic,
         })
+        fruit.setData('callOnce', isStatic)
         fruit.setScale(SCALE)
         fruit.setSleepEvents(true, true);
 
