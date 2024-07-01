@@ -46,7 +46,6 @@ gameModal = function (game:any) {
             if (includeBackground === true) {
                 modal = game.add.graphics();
                 modal.fillStyle(backgroundColor, backgroundOpacity);
-               console.log('game',game)
 
                 modal.fillRect(0, 0, game.game.config.width, game.game.config.height);
 

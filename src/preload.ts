@@ -1,7 +1,8 @@
 import 'phaser';
 import Api from './api'
 
-const CDN = 'https://storage.360buyimg.com/web-static/hexigua'
+// const CDN = 'https://storage.360buyimg.com/web-static/hexigua'
+const CDN = 'image'
 
 export default class Preload extends Phaser.Scene {
     constructor() {

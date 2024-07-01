@@ -30,8 +30,8 @@ class Demo extends Phaser.Scene {
         this.matter.world.setBounds()
 
 
-        //添加地面
-        const groundSprite = this.add.tileSprite(WINDOW_WIDTH / 2, WINDOW_HEIGHT - 5 * Ratio, WINDOW_WIDTH, 127, 'ground')
+        //添加地面 宽度加40 防止1号水果掉到地面之下
+        const groundSprite = this.add.tileSprite(WINDOW_WIDTH / 2, WINDOW_HEIGHT - 5 * Ratio, WINDOW_WIDTH + 40, 127, 'ground')
         this.matter.add.gameObject(groundSprite, { isStatic: true,  })
 
 
@@ -182,7 +182,7 @@ class Demo extends Phaser.Scene {
             //顶部落下的瓜前5个随机
             key = `${Phaser.Math.Between(1, this.randomLevel)}`
         }
-        // key = key == "1" ? "11" : key
+        // key = '1' // key == "1" ? "11" : key
         const fruit = this.matter.add.image(x, y, key)
         fruit.setBody({
             type: 'circle',
