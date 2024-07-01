@@ -11,7 +11,6 @@ const endLineY = 40 * Ratio
 
 class Demo extends Phaser.Scene {
 
-    private enableAdd: boolean = true
     private score: number = 0
     private randomLevel: number = 5
     private scoreText;
@@ -40,7 +39,8 @@ class Demo extends Phaser.Scene {
         const y = 20 * Ratio
         let fruit = this.createFruite(x, y)
         let fruitTween = null
-
+        let enableCollide = true // 释放后1秒内 禁用碰撞 
+        let isDragStart = false // pc端下 触发move之前不一定会触发down
 
         //得分
         this.scoreText = this.add.text(30, 20, `${this.score}`, { font: '45px Arial Black', color: '#ffe325' }).setStroke('#974c1e', 8);
@@ -61,8 +61,7 @@ class Demo extends Phaser.Scene {
             //物体碰撞回调,
         
             onCollideActiveCallback: (e,body) => {
-               
-                if (this.enableAdd) {
+                if (enableCollide) {
                     if (e.bodyB.velocity.y < 1 && e.bodyA.velocity.y < 1){
                         // 游戏结束
                         this.events.emit('endGame')
@@ -98,7 +97,8 @@ class Demo extends Phaser.Scene {
 
         //点击屏幕
         this.input.on('pointerdown', (point: Phaser.Types.Math.Vector2Like) => {
-            if(!this.enableAdd) return
+            if(!enableCollide) return
+            isDragStart = true
             fruitTween = this.tweens.add({
                 targets: fruit,
                 props: {
@@ -110,7 +110,8 @@ class Demo extends Phaser.Scene {
         })
         
         this.input.on('pointermove', (point: Phaser.Types.Math.Vector2Like) => {
-            if(!this.enableAdd) return
+            if(!isDragStart) return
+            if(!enableCollide) return
             if(fruitTween) {
                 fruitTween.stop()
                 // fruitTween.seek(1)
@@ -119,8 +120,10 @@ class Demo extends Phaser.Scene {
         })
 
         this.input.on('pointerup', (point: Phaser.Types.Math.Vector2Like) => {
-            if(!this.enableAdd) return
-            this.enableAdd = false
+            if(!isDragStart) return
+            if(!enableCollide) return
+            isDragStart = false
+            enableCollide = false
 
             if(fruitTween) {
                 fruitTween.stop()
@@ -133,7 +136,7 @@ class Demo extends Phaser.Scene {
             fruit.setStatic(false)
             setTimeout(() => {
                 fruit = this.createFruite(x, y)
-                this.enableAdd = true
+                enableCollide = true
             }, 1000);
         })
 
@@ -182,7 +185,7 @@ class Demo extends Phaser.Scene {
             //顶部落下的瓜前5个随机
             key = `${Phaser.Math.Between(1, this.randomLevel)}`
         }
-        // key = '1' // key == "1" ? "11" : key
+        // key = '11' // key == "1" ? "11" : key
         const fruit = this.matter.add.image(x, y, key)
         fruit.setBody({
             type: 'circle',
