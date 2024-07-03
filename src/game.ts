@@ -25,16 +25,16 @@ class Demo extends Phaser.Scene {
 
     create() {
 
-        //设置边界
+        // 设置边界
         this.matter.world.setBounds()
 
 
-        //添加地面 宽度加40 防止1号水果掉到地面之下
+        // 添加地面 宽度加40 防止1号水果掉到地面之下
         const groundSprite = this.add.tileSprite(WINDOW_WIDTH / 2, WINDOW_HEIGHT - 5 * Ratio, WINDOW_WIDTH + 40, 127, 'ground')
         this.matter.add.gameObject(groundSprite, { isStatic: true, label: 'ground'  })
 
 
-        //初始化一个水果
+        // 初始化一个水果
         const x = WINDOW_WIDTH / 2
         const y = 20 * Ratio
         let fruit = this.createFruite(x, y)
@@ -42,7 +42,7 @@ class Demo extends Phaser.Scene {
         let enableCollide = true // 释放后1秒内 禁用碰撞 
         let isDragStart = false // pc端下 触发move之前不一定会触发down
 
-        //得分
+        // 得分
         this.scoreText = this.add.text(30, 20, `${this.score}`, { font: '45px Arial Black', color: '#ffe325' }).setStroke('#974c1e', 8);
 
         const endLineSprite = this.add.tileSprite(WINDOW_WIDTH / 2, endLineY, WINDOW_WIDTH, 8, 'endLine')
@@ -52,14 +52,14 @@ class Demo extends Phaser.Scene {
         this.particles = this.add.particles('success')
 
 
-        // //设置物理效果
+        // // 设置物理效果
         this.matter.add.gameObject(endLineSprite, {
             label: 'endLine',
-            //静止
+            // 静止
             isStatic: true,
-            //传感器模式，可以检测到碰撞，但是不会对物体产品效果
+            // 传感器模式，可以检测到碰撞，但是不会对物体产品效果
             isSensor: true,
-            //物体碰撞回调,
+            // 物体碰撞回调,
             onCollideActiveCallback: (e,body) => {
                 if (enableCollide) {
                     if (e.bodyB.velocity.y < 1 && e.bodyA.velocity.y < 1){
@@ -70,7 +70,7 @@ class Demo extends Phaser.Scene {
             },
 
         })
-        //end game
+        // end game
         this.events.once('endGame', () => {
             
             this.input.off('pointerdown')
@@ -95,7 +95,7 @@ class Demo extends Phaser.Scene {
             this.createParticles()
         })
 
-        //点击屏幕
+        // 点击屏幕
         this.input.on('pointerdown', (point: Phaser.Types.Math.Vector2Like) => {
             if(!enableCollide) return
             isDragStart = true
@@ -174,7 +174,6 @@ class Demo extends Phaser.Scene {
                     this.sound.add('down').play(); // { volume: 2 }
                 }
                 
-                // 
             })
         }
         //碰撞事件
@@ -193,7 +192,7 @@ class Demo extends Phaser.Scene {
    */
     createFruite(x: number, y: number, isStatic = true, key?: string,) {
         if (!key) {
-            //顶部落下的瓜前5个随机
+            // 顶部落下的瓜前5个随机
             key = `${Phaser.Math.Between(1, this.randomLevel)}`
         }
         // key = '11' // key == "1" ? "11" : key
@@ -211,7 +210,7 @@ class Demo extends Phaser.Scene {
         fruit.setScale(SCALE)
         fruit.setSleepEvents(true, true);
 
-        //添加动画
+        // 添加动画
         this.tweens.add({
             targets: fruit,
             scale: {
@@ -228,19 +227,21 @@ class Demo extends Phaser.Scene {
         const { x, y } = bodyA.position
         const score = parseInt(bodyA.label)
         const lable = score + 1
-        //这里合成后，直接消失，有时间的话可以加一些帧动画之类的
+        // 这里合成后，直接消失
         bodyA.gameObject.alpha = 0
         bodyB.gameObject.alpha = 0
         bodyB.destroy()
         bodyA.destroy()
         this.createFruite(x, y, false, `${lable}`)
 
-        //得分
+        // 爆汁动画
+
+        // 得分
         this.score += score
         if (score === 10) {
             this.score += 100
         }
-        //根据分数增加初始掉落水果等级
+        // 根据分数增加初始掉落水果等级
         const add = Math.floor(this.score / 100)
         if (add < 4) {
             this.randomLevel = 5 + add
@@ -340,12 +341,12 @@ export default {
             physics: {
                 default: 'matter',
                 matter: {
-                    //enableSleeping: true,
+                    // enableSleeping: true,
                     gravity:{ 
                         x:0,
                         y:3
                     },
-                    //debug: true
+                    // debug: true
                 }
             },
             scene: [Preload, Demo]

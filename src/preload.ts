@@ -3,7 +3,6 @@ import Api from './api'
 
 export default class Preload extends Phaser.Scene {
     constructor() {
-        console.log('=== preload')
         super('preload');
     }
     preload() {
@@ -24,6 +23,7 @@ export default class Preload extends Phaser.Scene {
         this.load.image("no", CDN+"/image/no.png");
         for (let i = 1; i <= 11; i++) {
             this.load.image(`${i}`, `${CDN}/image/${i}.png`)
+            if(i!=11) this.load.image(`b${i}`, `${CDN}/image/b${i}.png`)
         }
         this.load.atlas('success', CDN+'/image/confi.png', CDN+'/image/confi.json');
 
