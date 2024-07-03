@@ -1,4 +1,5 @@
 const API = {
+    cdn: '',
     event: {
         onStart: null,
         onProgress: null,

@@ -315,11 +315,13 @@ class Demo extends Phaser.Scene {
 let game = null
 
 export default {
-    init({ event }){
+    init({ cdn = '', event }){
         if(game) {
             console.log('init 函数只能执行一次')
             return
         }
+        console.log(cdn)
+        API.cdn = cdn
         if(event){
             for(let name in API.event){
                 if(event[name]) API.event[name] = event[name]
