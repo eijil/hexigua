@@ -15,9 +15,8 @@ class Demo extends Phaser.Scene {
     private randomLevel: number = 5
     private scoreText;
     private gameModal: any = new Map()
-    private particles: any;
-
-
+    private particles: any = new Map()
+    
     constructor() {
         super('demo');
 
@@ -49,9 +48,23 @@ class Demo extends Phaser.Scene {
         endLineSprite.setScale(1, SCALE)
         endLineSprite.setAlpha(0)
 
-        this.particles = this.add.particles('success')
+        // 成功的粒子
+        this.particles.set('success', this.add.particles('success'))
 
-
+        // 果汁粒子
+        const juiceColor = [0x701167, 0xff0925, 0xfe6f01, 0xffe614, 0xdeff81, 0xe61933, 0xf69a61, 0xffdd3c, 0xfffaea, 0xfc7b96]
+        for(let i=0;i<juiceColor.length;i++){
+            const graphics = this.make.graphics({ x: 0, y: 0, add: false });
+            const key = 'juice'+(i+1)
+            graphics.fillStyle(juiceColor[i], 1);
+            graphics.fillCircle(10, 10, 10); // 创建一个圆形
+            graphics.generateTexture(key, 20, 20);
+            
+            let juiceParticles = this.add.particles(key)
+            juiceParticles.setDepth(10)
+            this.particles.set(key, juiceParticles)
+        }
+        
         // // 设置物理效果
         this.matter.add.gameObject(endLineSprite, {
             label: 'endLine',
@@ -92,7 +105,7 @@ class Demo extends Phaser.Scene {
         })
 
         this.events.on('success', () => {
-            this.createParticles()
+            this.createSuccessParticles()
         })
 
         // 点击屏幕
@@ -190,23 +203,24 @@ class Demo extends Phaser.Scene {
    * @param isStatic 是否静止
    * @param key 瓜的类型
    */
-    createFruite(x: number, y: number, isStatic = true, key?: string,) {
-        if (!key) {
+    createFruite(x: number, y: number, isStatic = true, label?: string,) {
+        if (!label) {
             // 顶部落下的瓜前5个随机
-            key = `${Phaser.Math.Between(1, this.randomLevel)}`
+            label = `${Phaser.Math.Between(1, this.randomLevel)}`
         }
-        // key = '11' // key == "1" ? "11" : key
-        const fruit = this.matter.add.image(x, y, key)
+        // label = '9' // key == "1" ? "11" : key
+        const fruit = this.matter.add.image(x, y, label)
         fruit.setBody({
             type: 'circle',
             radius: (fruit.width / 2)
         }, {
-            label: key,
+            label,
             restitution: 0.1, // 0.3, // 反弹
             friction: 1, // 0.1, // 摩擦系数
             isStatic,
         })
         fruit.setData('callOnce', isStatic)
+        fruit.setData('score', parseInt(label))
         fruit.setScale(SCALE)
         fruit.setSleepEvents(true, true);
 
@@ -225,16 +239,18 @@ class Demo extends Phaser.Scene {
     }
     onCompose(bodyA, bodyB) {
         const { x, y } = bodyA.position
-        const score = parseInt(bodyA.label)
-        const lable = score + 1
+        const size = bodyA.gameObject.width
+        const score = bodyA.gameObject.getData('score')
+        const label = parseInt(bodyA.label)
         // 这里合成后，直接消失
         bodyA.gameObject.alpha = 0
         bodyB.gameObject.alpha = 0
         bodyB.destroy()
         bodyA.destroy()
-        this.createFruite(x, y, false, `${lable}`)
-
+        this.createFruite(x, y, false, `${label + 1}`)
+        
         // 爆汁动画
+        this.createJuiceParticles(x, y, size, `${label}`)
 
         // 得分
         this.score += score
@@ -278,9 +294,7 @@ class Demo extends Phaser.Scene {
         this.score = 0;
         this.randomLevel = 5
     }
-    createParticles() {
-
-
+    createSuccessParticles() {
         const frame = ['c1.png', 'c2.png', 'c3.png', 'c4.png', 'c5.png', 'c6.png', 'c7.png', 'c8.png']
 
         const config = {
@@ -296,10 +310,30 @@ class Demo extends Phaser.Scene {
             scale: { start: 0.5, end: 0.8 },
 
         }
-        this.particles.createEmitter(config)
+        this.particles.get('success').createEmitter(config)
     }
 
+    // 爆汁
+    createJuiceParticles(x: number, y: number, size: number, label: string,) { 
+        // y = y -300
+        const positionReg = size*SCALE/2 * 0.4
+        const scaleReg = Math.min(1, size / 408)
+        const config = {
+            maxParticles: 20,
+            x: { min: x-positionReg, max: x+positionReg },
+            y: { min: y-positionReg, max: y+positionReg },
+            speed: { min: 10, max: 50 },
+            gravityY: 0, // 重力
+            lifespan: 1000, // 生命 毫秒
+            quantity: 2, // 数量每帧
 
+            scale: { min: 0.2*scaleReg, max: 1*scaleReg },
+            alpha: {  start: 0.8, end: 0 },
+            // alpha: { min: 0.1, max: 1 },
+            // particleAlpha: {start: 0.8, end: 0 },
+        }
+        this.particles.get(`juice${label}`).createEmitter(config)
+    }
 
     creatMask() {
         const mask = this.add.graphics()
@@ -331,7 +365,7 @@ export default {
 
         const config = {
             type: Phaser.AUTO,
-            backgroundColor: '#ffe8a3',
+            backgroundColor: '#ffe8a3', 
             scale: {
                 parent: 'container',
                 mode: Phaser.Scale.FIT,
