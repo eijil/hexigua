@@ -1,4 +1,4 @@
-import 'phaser';
+import * as Phaser from 'phaser'
 import Api from './api'
 
 export default class Preload extends Phaser.Scene {
@@ -23,9 +23,9 @@ export default class Preload extends Phaser.Scene {
         this.load.image("no", CDN+"/image/no.png");
         for (let i = 1; i <= 11; i++) {
             this.load.image(`${i}`, `${CDN}/image/${i}.png`)
-            if(i!=11) this.load.image(`b${i}`, `${CDN}/image/b${i}.png`)
         }
         this.load.atlas('success', CDN+'/image/confi.png', CDN+'/image/confi.json');
+        this.load.atlas('b', CDN+'/image/b.png', CDN+'/image/b.json');
 
         this.load.audio('合成', CDN+'/media/合成.mp3');
         this.load.audio('庆祝', CDN+'/media/庆祝.mp3');

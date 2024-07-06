@@ -1,4 +1,4 @@
-import 'phaser';
+import * as Phaser from 'phaser'
 import Preload from './preload'
 import API from './api'
 
@@ -25,13 +25,11 @@ class Demo extends Phaser.Scene {
     create() {
 
         // 设置边界
-        this.matter.world.setBounds()
-
+        this.matter.world.setBounds().updateWall(false, 'top')
 
         // 添加地面 宽度加40 防止1号水果掉到地面之下
         const groundSprite = this.add.tileSprite(WINDOW_WIDTH / 2, WINDOW_HEIGHT - 5 * Ratio, WINDOW_WIDTH + 40, 127, 'ground')
         this.matter.add.gameObject(groundSprite, { isStatic: true, label: 'ground'  })
-
 
         // 初始化一个水果
         const x = WINDOW_WIDTH / 2
@@ -44,26 +42,43 @@ class Demo extends Phaser.Scene {
         // 得分
         this.scoreText = this.add.text(30, 20, `${this.score}`, { font: '45px Arial Black', color: '#ffe325' }).setStroke('#974c1e', 8);
 
+        // 结束警戒线
         const endLineSprite = this.add.tileSprite(WINDOW_WIDTH / 2, endLineY, WINDOW_WIDTH, 8, 'endLine')
         endLineSprite.setScale(1, SCALE)
         endLineSprite.setAlpha(0)
 
-        // 成功的粒子
-        this.particles.set('success', this.add.particles('success'))
-
         // 果汁粒子
         const juiceColor = [0x701167, 0xff0925, 0xfe6f01, 0xffe614, 0xdeff81, 0xe61933, 0xf69a61, 0xffdd3c, 0xfffaea, 0xfc7b96]
         for(let i=0;i<juiceColor.length;i++){
-            const graphics = this.make.graphics({ x: 0, y: 0, add: false });
+            
+            const graphics = this.make.graphics({ x: 0, y: 0 }, false);
             const key = 'juice'+(i+1)
             graphics.fillStyle(juiceColor[i], 1);
-            graphics.fillCircle(10, 10, 10); // 创建一个圆形
-            graphics.generateTexture(key, 20, 20);
+            graphics.fillCircle(20, 20, 20); // x,y,radius 创建一个圆形
+            graphics.setScale(SCALE)
+            graphics.generateTexture(key, 40*SCALE, 40*SCALE); // 图宽度高度
             
-            let juiceParticles = this.add.particles(key)
+            let juiceParticles = this.add.particles(0, 0, key)
             juiceParticles.setDepth(10)
             this.particles.set(key, juiceParticles)
+
         }
+        
+        // 成功的粒子
+        this.particles.set('success', this.add.particles(0, 0, 'success', {
+            emitting: false,
+            frame: ['c1.png', 'c2.png', 'c3.png', 'c4.png', 'c5.png', 'c6.png', 'c7.png', 'c8.png'],
+            x: { min: 0, max: WINDOW_WIDTH },
+            speed: { min: 250, max: 300 },
+            gravityY: 400,
+            lifespan: 4000,
+            quantity: 2,
+            y: WINDOW_HEIGHT / 4,
+            // maxParticles: 100,
+            angle: { min: 220, max: 320 },
+            scale: { start: 0.5, end: 0.8 },
+            // blendMode: 'ADD'
+        }))
         
         // // 设置物理效果
         this.matter.add.gameObject(endLineSprite, {
@@ -105,7 +120,8 @@ class Demo extends Phaser.Scene {
         })
 
         this.events.on('success', () => {
-            this.createSuccessParticles()
+            const s = this.particles.get('success')
+            s.emitParticle(100)
         })
 
         // 点击屏幕
@@ -126,8 +142,7 @@ class Demo extends Phaser.Scene {
             if(!isDragStart) return
             if(!enableCollide) return
             if(fruitTween) {
-                fruitTween.stop()
-                // fruitTween.seek(1)
+                fruitTween.destroy()
             }
             if(fruit) fruit.x = point.x
         })
@@ -139,14 +154,14 @@ class Demo extends Phaser.Scene {
             enableCollide = false
 
             if(fruitTween) {
-                fruitTween.stop()
-                // fruitTween.seek(1)
+                fruitTween.destroy()
             }
             let size = fruit.width / 2 * SCALE
             fruit.x = Math.max(size, Math.min(WINDOW_WIDTH - size, point.x))
-            
-            fruit.setAwake()
+
+            // fruit.setAwake()
             fruit.setStatic(false)
+            
             setTimeout(() => {
                 fruit = this.createFruite(x, y)
                 enableCollide = true
@@ -204,37 +219,50 @@ class Demo extends Phaser.Scene {
    * @param key 瓜的类型
    */
     createFruite(x: number, y: number, isStatic = true, label?: string,) {
+
+        // label = '9' // key == "1" ? "11" : key
+
         if (!label) {
             // 顶部落下的瓜前5个随机
             label = `${Phaser.Math.Between(1, this.randomLevel)}`
         }
-        // label = '9' // key == "1" ? "11" : key
-        const fruit = this.matter.add.image(x, y, label)
+        const fruitWidth = this.textures.get(label).getSourceImage().width
+        const fruit = this.matter.add.image(x, y, label, null, 
+            // {
+            //     shape: {
+            //         type: 'circle',
+            //         radius: (fruitWidth / 2)
+            //     },
+            //     label,
+            //     restitution: 0.1, // 0.3, // 反弹
+            //     friction: 1, // 0.1, // 摩擦系数
+            // }
+        )
         fruit.setBody({
             type: 'circle',
             radius: (fruit.width / 2)
-        }, {
+        },{
             label,
             restitution: 0.1, // 0.3, // 反弹
             friction: 1, // 0.1, // 摩擦系数
-            isStatic,
         })
+        fruit.setStatic(isStatic)
         fruit.setData('callOnce', isStatic)
         fruit.setData('score', parseInt(label))
         fruit.setScale(SCALE)
-        fruit.setSleepEvents(true, true);
+        // fruit.setSleepEvents(true, true);
 
         // 添加动画
         this.tweens.add({
             targets: fruit,
             scale: {
-                from: 0,
-                to: SCALE
+                from: 0.1, to: SCALE
             },
             ease: 'Back',
             easeParams: [3.5],
             duration: 200
         })
+        
         return fruit
     }
     onCompose(bodyA, bodyB) {
@@ -294,45 +322,57 @@ class Demo extends Phaser.Scene {
         this.score = 0;
         this.randomLevel = 5
     }
-    createSuccessParticles() {
-        const frame = ['c1.png', 'c2.png', 'c3.png', 'c4.png', 'c5.png', 'c6.png', 'c7.png', 'c8.png']
-
-        const config = {
-            frame: frame,
-            x: { min: 0, max: WINDOW_WIDTH },
-            speed: { min: 250, max: 300 },
-            gravityY: 400,
-            lifespan: 4000,
-            quantity: 2,
-            y: WINDOW_HEIGHT / 4,
-            maxParticles: 100,
-            angle: { min: 220, max: 320 },
-            scale: { start: 0.5, end: 0.8 },
-
-        }
-        this.particles.get('success').createEmitter(config)
-    }
-
     // 爆汁
     createJuiceParticles(x: number, y: number, size: number, label: string,) { 
-        // y = y -300
-        const positionReg = size*SCALE/2 * 0.4
-        const scaleReg = Math.min(1, size / 408)
-        const config = {
-            maxParticles: 20,
+        // 粒子
+        const positionReg = size * SCALE / 2
+        const scaleReg = Math.min(1, size / 408) // 水果越小 粒子越小
+
+        const p = this.particles.get(`juice${label}`)
+        p.setConfig({
+            emitting: false,
+            // maxParticles: 20, 
             x: { min: x-positionReg, max: x+positionReg },
             y: { min: y-positionReg, max: y+positionReg },
             speed: { min: 10, max: 50 },
             gravityY: 0, // 重力
-            lifespan: 1000, // 生命 毫秒
+            lifespan: 2000, // 生命 毫秒
             quantity: 2, // 数量每帧
 
-            scale: { min: 0.2*scaleReg, max: 1*scaleReg },
-            alpha: {  start: 0.8, end: 0 },
-            // alpha: { min: 0.1, max: 1 },
-            // particleAlpha: {start: 0.8, end: 0 },
-        }
-        this.particles.get(`juice${label}`).createEmitter(config)
+            scale: { end: 0.1, start: 1 * scaleReg, random: true },
+            alpha: {  start: 0.8, end: 0, random: true},
+        })
+        p.emitParticle(50)
+
+        // 粒子背景  果汁
+        const s = this.textures.get(label).getSourceImage().width / 319 * SCALE // 获取水果图片原始宽度 计算出爆汁背景图的scale 这个值会让图片和水果一样宽
+        const image = this.add.image(x, y, 'b', `b${label}.png`) // // 果汁 没有物理属性 直接用add.image
+        image.setScale(s * 0.3)
+        image.setAngle(Phaser.Math.Between(-180, 180))
+        this.tweens.chain({
+            targets: image,
+            tweens: [
+                {
+                    scale: s * 1.4,
+                    ease: 'Expo.out', // 'quart.in' 'power2' 'sine.in'
+                    duration: 1200
+                },
+                {
+                    alpha: 0,
+                    ease: 'Expo.in',
+                    duration: 700
+                },
+                // {
+                //     scale: { value: 0.5, duration: 1000 },
+                //     y: { value: 100, duration: 750, ease: '' }
+                // },
+               
+            ],
+            onComplete: () => {
+                image.destroy()
+            }
+        })
+
     }
 
     creatMask() {
@@ -342,10 +382,8 @@ class Demo extends Phaser.Scene {
         return this.add.container(0, 0, [mask])
 
     }
-    update() {
-
-    }
 }
+
 
 let game = null
 
@@ -355,7 +393,6 @@ export default {
             console.log('init 函数只能执行一次')
             return
         }
-        console.log(cdn)
         API.cdn = cdn
         if(event){
             for(let name in API.event){
@@ -378,7 +415,7 @@ export default {
                     // enableSleeping: true,
                     gravity:{ 
                         x:0,
-                        y:3
+                        y: 3
                     },
                     // debug: true
                 }
