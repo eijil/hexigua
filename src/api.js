@@ -1,4 +1,6 @@
 const API = {
+    parent: '',
+    backgroundColor: '',
     cdn: '',
     event: {
         onStart: null,

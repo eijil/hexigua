@@ -27,6 +27,8 @@
             switch(name) {
                 case 'init': 
                     MyGame.init({
+                        parent: document.querySelector('.container'),
+                        // backgroundColor: '#fff', 
                         cdn: '', // 'https://storage.360buyimg.com/web-static/hexigua',
                         event: {
                             onStart: function(){

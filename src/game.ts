@@ -226,7 +226,7 @@ class Demo extends Phaser.Scene {
             // 顶部落下的瓜前5个随机
             label = `${Phaser.Math.Between(1, this.randomLevel)}`
         }
-        const fruitWidth = this.textures.get(label).getSourceImage().width
+        // const fruitWidth = this.textures.get(label).getSourceImage().width
         const fruit = this.matter.add.image(x, y, label, null, 
             // {
             //     shape: {
@@ -388,12 +388,14 @@ class Demo extends Phaser.Scene {
 let game = null
 
 export default {
-    init({ cdn = '', event }){
+    init({ cdn = '', parent = '', backgroundColor = '#ffe8a3', event }){
         if(game) {
             console.log('init 函数只能执行一次')
             return
         }
         API.cdn = cdn
+        API.parent = parent
+        API.backgroundColor = backgroundColor
         if(event){
             for(let name in API.event){
                 if(event[name]) API.event[name] = event[name]
@@ -402,9 +404,10 @@ export default {
 
         const config = {
             type: Phaser.AUTO,
-            backgroundColor: '#ffe8a3', 
+            backgroundColor, 
+            parent,
             scale: {
-                parent: 'container',
+                parent,
                 mode: Phaser.Scale.FIT,
             },
             width: window.innerWidth,
@@ -422,7 +425,7 @@ export default {
             },
             scene: [Preload, Demo]
         };
-        
+
         game = new Phaser.Game(config);
 
     },
