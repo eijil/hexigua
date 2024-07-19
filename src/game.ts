@@ -388,7 +388,7 @@ class Demo extends Phaser.Scene {
 let game = null
 
 export default {
-    init({ cdn = '', parent = '', backgroundColor = '#ffe8a3', event }){
+    init({ cdn = '', parent = '', backgroundColor = '#ffe8a3', transparent = false, event }){
         if(game) {
             console.log('init 函数只能执行一次')
             return
@@ -396,6 +396,7 @@ export default {
         API.cdn = cdn
         API.parent = parent
         API.backgroundColor = backgroundColor
+        API.transparent = transparent
         if(event){
             for(let name in API.event){
                 if(event[name]) API.event[name] = event[name]
@@ -404,7 +405,8 @@ export default {
 
         const config = {
             type: Phaser.AUTO,
-            backgroundColor, 
+            backgroundColor,
+            transparent,
             parent,
             scale: {
                 parent,
