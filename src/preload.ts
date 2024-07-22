@@ -11,8 +11,8 @@ export default class Preload extends Phaser.Scene {
         this.load.on('progress', function (value) {
             Api.event.onProgress && Api.event.onProgress(value)
         })
-        this.load.on('complete', function (value) {
-            Api.event.onComplete && Api.event.onComplete(value)
+        this.load.on('complete', function (res) {
+            Api.event.onComplete && Api.event.onComplete(res)
         })
         this.load.image('ground', CDN+'/image/ground.png')
         this.load.image('endLine', CDN+'/image/endLine.png')
