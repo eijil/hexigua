@@ -1,4 +1,5 @@
 const API = {
+    debug: false,
     parent: '',
     backgroundColor: '',
     transparent: false,

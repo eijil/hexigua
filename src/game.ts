@@ -163,7 +163,7 @@ class Demo extends Phaser.Scene {
             fruit.setStatic(false)
             
             setTimeout(() => {
-                fruit = this.createFruite(x, y)
+                fruit = this.createFruite(x, y, true, API.debug ? '10' : '')
                 enableCollide = true
             }, 1000);
         })
@@ -388,11 +388,12 @@ class Demo extends Phaser.Scene {
 let game = null
 
 export default {
-    init({ cdn = '', parent = '', backgroundColor = '#ffe8a3', transparent = false, event }){
+    init({ debug = false, cdn = '', parent = '', backgroundColor = '#ffe8a3', transparent = false, event }){
         if(game) {
             console.log('init 函数只能执行一次')
             return
         }
+        API.debug = debug
         API.cdn = cdn
         API.parent = parent
         API.backgroundColor = backgroundColor
