@@ -251,7 +251,7 @@ class Demo extends Phaser.Scene {
             radius: (fruit.width / 2)
         },{
             label,
-            restitution: 0.1, // 0.3, // 反弹
+            restitution: 0.05, // 0.3, // 反弹
             friction: 1, // 0.1, // 摩擦系数
         })
         fruit.setStatic(isStatic)
