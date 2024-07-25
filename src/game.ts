@@ -299,8 +299,7 @@ class Demo extends Phaser.Scene {
             this.randomLevel = 5 + add
         }
         this.scoreText.setText(this.score)
-        API.event.onMessage && API.event.onMessage({code: 'score', data: this.score})
-        API.event.onMessage && API.event.onMessage({code: 'collision', data: label})
+        API.event.onMessage && API.event.onMessage({code: 'score', data: {score: this.score, label}})
 
     }
     createEndModal() {
