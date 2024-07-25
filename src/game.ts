@@ -12,6 +12,7 @@ let window_height
 
 class Demo extends Phaser.Scene {
 
+    private isOver: boolean = false
     private score: number = 0
     private randomLevel: number = 5
     private scoreText;
@@ -122,6 +123,7 @@ class Demo extends Phaser.Scene {
                 duration: 300,
                 onComplete: () => {
                     this.gameModal.get('endModal').setVisible(true)
+                    this.isOver = true
                     API.event.onGameOver && API.event.onGameOver(this.score)
                 }
             })
@@ -301,7 +303,7 @@ class Demo extends Phaser.Scene {
             this.randomLevel = 5 + add
         }
         this.scoreText.setText(this.score)
-        API.event.onMessage && API.event.onMessage({code: 'score', data: {score: this.score, label}})
+        !this.isOver && API.event.onMessage && API.event.onMessage({code: 'score', data: {score: this.score, label}})
 
     }
     createEndModal() {
@@ -331,6 +333,7 @@ class Demo extends Phaser.Scene {
         this.scene.restart()
         this.score = 0;
         this.randomLevel = 5
+        this.isOver = false
     }
     setAudioMute(isMute: boolean){
         this.soundList.get('down').setMute(isMute)
