@@ -2,13 +2,13 @@ import * as Phaser from 'phaser'
 import Preload from './preload'
 import API from './api'
 
-const WINDOW_WIDTH = window.innerWidth
-const WINDOW_HEIGHT = window.innerHeight
+
 const SCALE = 0.5
 const Ratio = window.devicePixelRatio
 
 const endLineY = 40 * Ratio
-
+let window_width
+let window_height
 
 class Demo extends Phaser.Scene {
 
@@ -26,6 +26,8 @@ class Demo extends Phaser.Scene {
 
     create() {
 
+        window_width = window.innerWidth
+        window_height = window.innerHeight
         // 音效
         this.soundList.set('down', this.sound.add('down'))
         this.soundList.set('合成', this.sound.add('合成'))
@@ -34,11 +36,11 @@ class Demo extends Phaser.Scene {
         this.matter.world.setBounds().updateWall(false, 'top')
 
         // 添加地面 宽度加40 防止1号水果掉到地面之下
-        const groundSprite = this.add.tileSprite(WINDOW_WIDTH / 2, WINDOW_HEIGHT - 5 * Ratio, WINDOW_WIDTH + 40, 127, 'ground')
+        const groundSprite = this.add.tileSprite(window_width / 2, window_height - 5 * Ratio, window_width + 40, 127, 'ground')
         this.matter.add.gameObject(groundSprite, { isStatic: true, label: 'ground'  })
 
         // 初始化一个水果
-        const x = WINDOW_WIDTH / 2
+        const x = window_width / 2
         const y = 20 * Ratio
         let fruit = this.createFruite(x, y)
         let fruitTween = null
@@ -49,7 +51,7 @@ class Demo extends Phaser.Scene {
         this.scoreText = this.add.text(30, 20, `${this.score}`, { font: '45px Arial Black', color: '#ffe325' }).setStroke('#974c1e', 8);
 
         // 结束警戒线
-        const endLineSprite = this.add.tileSprite(WINDOW_WIDTH / 2, endLineY, WINDOW_WIDTH, 8, 'endLine')
+        const endLineSprite = this.add.tileSprite(window_width / 2, endLineY, window_width, 8, 'endLine')
         endLineSprite.setScale(1, SCALE)
         endLineSprite.setAlpha(0)
 
@@ -74,12 +76,12 @@ class Demo extends Phaser.Scene {
         this.particles.set('success', this.add.particles(0, 0, 'success', {
             emitting: false,
             frame: ['c1.png', 'c2.png', 'c3.png', 'c4.png', 'c5.png', 'c6.png', 'c7.png', 'c8.png'],
-            x: { min: 0, max: WINDOW_WIDTH },
+            x: { min: 0, max: window_width },
             speed: { min: 250, max: 300 },
             gravityY: 400,
             lifespan: 4000,
             quantity: 2,
-            y: WINDOW_HEIGHT / 4,
+            y: window_height / 4,
             // maxParticles: 100,
             angle: { min: 220, max: 320 },
             scale: { start: 0.5, end: 0.8 },
@@ -163,7 +165,7 @@ class Demo extends Phaser.Scene {
                 fruitTween.destroy()
             }
             let size = fruit.width / 2 * SCALE
-            fruit.x = Math.max(size, Math.min(WINDOW_WIDTH - size, point.x))
+            fruit.x = Math.max(size, Math.min(window_width - size, point.x))
 
             // fruit.setAwake()
             fruit.setStatic(false)
@@ -304,7 +306,7 @@ class Demo extends Phaser.Scene {
     createEndModal() {
 
         const modalContainer = this.creatMask()
-        const centerX = WINDOW_WIDTH / 2
+        const centerX = window_width / 2
 
         const gameOver = this.add.sprite(centerX, 100, 'gameOver')
         const tryAgain = this.add.sprite(centerX, 200, 'tryagain')
@@ -389,7 +391,7 @@ class Demo extends Phaser.Scene {
     creatMask() {
         const mask = this.add.graphics()
         mask.fillStyle(0X000000, 0.7)
-        mask.fillRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
+        mask.fillRect(0, 0, window_width, window_height)
         return this.add.container(0, 0, [mask])
 
     }
