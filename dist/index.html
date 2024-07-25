@@ -14,8 +14,9 @@
 <body>
     <div class="container"></div>
     <div class="menu">
-        <span data-name="init" onclick="">init</span>
-        <span data-name="restart" onclick="">restart</span>
+        <span data-name="init">init</span>
+        <span data-name="restart">restart</span>
+        <span data-name="mute">mute</span>
     </div>
 </body>
 
@@ -45,8 +46,8 @@
                             onGameOver: function(score){
                                 console.log('游戏结束', score)
                             },
-                            onUpdateScore: function(score){
-                                console.log('成绩：', score)
+                            onMessage: function(res){
+                                console.log(res.code, res.data)
                             },
                         }
                         
@@ -54,6 +55,9 @@
                     break
                 case 'restart': // 重置游戏
                     MyGame.onRestart()
+                    break
+                case 'mute': // 静音
+                    MyGame.setAudioMute(true)
                     break
                 default:
                     console.log(name)

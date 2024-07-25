@@ -9,6 +9,7 @@ const Ratio = window.devicePixelRatio
 
 const endLineY = 40 * Ratio
 
+
 class Demo extends Phaser.Scene {
 
     private score: number = 0
@@ -16,6 +17,7 @@ class Demo extends Phaser.Scene {
     private scoreText;
     private gameModal: any = new Map()
     private particles: any = new Map()
+    private soundList: any = new Map()
     
     constructor() {
         super('demo');
@@ -23,6 +25,10 @@ class Demo extends Phaser.Scene {
     }
 
     create() {
+
+        // 音效
+        this.soundList.set('down', this.sound.add('down'))
+        this.soundList.set('合成', this.sound.add('合成'))
 
         // 设置边界
         this.matter.world.setBounds().updateWall(false, 'top')
@@ -191,15 +197,15 @@ class Demo extends Phaser.Scene {
                         duration: 150,
                         onComplete: () => this.onCompose(bodyA, bodyB)
                     })
-                    this.sound.add('合成').play();
+                    this.soundList.get('合成').play()
                 }
                 const has = bodyA.label !== 'endLine' && bodyB.label !== 'endLine'
                 if(has && bodyB.gameObject && bodyB.gameObject.getData('callOnce') === true){
                     bodyB.gameObject.setData('callOnce', false)
-                    this.sound.add('down').play(); // { volume: 2 }
+                    this.soundList.get('down').play() // { volume: 2 }
                 }else if(has && bodyA.gameObject && bodyA.gameObject.getData('callOnce') === true){
                     bodyA.gameObject.setData('callOnce', false)
-                    this.sound.add('down').play(); // { volume: 2 }
+                    this.soundList.get('down').play()
                 }
                 
             })
@@ -291,7 +297,8 @@ class Demo extends Phaser.Scene {
             this.randomLevel = 5 + add
         }
         this.scoreText.setText(this.score)
-        API.event.onUpdateScore && API.event.onUpdateScore(this.score)
+        API.event.onMessage && API.event.onMessage({code: 'score', data: this.score})
+        API.event.onMessage && API.event.onMessage({code: 'collision', data: label})
 
     }
     createEndModal() {
@@ -321,6 +328,10 @@ class Demo extends Phaser.Scene {
         this.scene.restart()
         this.score = 0;
         this.randomLevel = 5
+    }
+    setAudioMute(isMute: boolean){
+        this.soundList.get('down').setMute(isMute)
+        this.soundList.get('合成').setMute(isMute)
     }
     // 爆汁
     createJuiceParticles(x: number, y: number, size: number, label: string,) { 
@@ -430,10 +441,16 @@ export default {
         };
 
         game = new Phaser.Game(config);
+        console.log(game)
 
     },
     // 如果结束页面不需要集成在游戏代码内 ，可通过onRestart来重置游戏
     onRestart(){
         game.scene.scenes[1].restart()
+    },
+    setAudioMute(isMute: boolean){
+        // audioMute = isMute
+        console.log(isMute)
+        game.scene.scenes[1].setAudioMute(isMute)
     }
 }
