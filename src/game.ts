@@ -260,6 +260,8 @@ class Demo extends Phaser.Scene {
             label,
             restitution: 0.3, // 0.3, // 反弹
             friction: 0.1, // 0.1, // 摩擦系数
+            // density: 0.01, // 密度 默认 0.001	
+            // mass: 1 // 质量
         })
         fruit.setStatic(isStatic)
         fruit.setData('callOnce', isStatic)
