@@ -45,7 +45,7 @@ class Demo extends Phaser.Scene {
         const y = 20 * Ratio
         let fruit = this.createFruite(x, y)
         let fruitTween = null
-        let enableCollide = true // 释放后1秒内 禁用碰撞 
+        let enablePointer = true // 启用pointer事件
         let isDragStart = false // pc端下 触发move之前不一定会触发down
 
         // 得分
@@ -98,7 +98,7 @@ class Demo extends Phaser.Scene {
             isSensor: true,
             // 物体碰撞回调,
             onCollideActiveCallback: (e,body) => {
-                if (enableCollide) {
+                if (enablePointer) {
                     if (e.bodyB.velocity.y < 1 && e.bodyA.velocity.y < 1){
                         // 游戏结束
                         this.events.emit('endGame')
@@ -136,7 +136,7 @@ class Demo extends Phaser.Scene {
 
         // 点击屏幕
         this.input.on('pointerdown', (point: Phaser.Types.Math.Vector2Like) => {
-            if(!enableCollide) return
+            if(!enablePointer) return
             isDragStart = true
             fruitTween = this.tweens.add({
                 targets: fruit,
@@ -150,7 +150,7 @@ class Demo extends Phaser.Scene {
         
         this.input.on('pointermove', (point: Phaser.Types.Math.Vector2Like) => {
             if(!isDragStart) return
-            if(!enableCollide) return
+            if(!enablePointer) return
             if(fruitTween) {
                 fruitTween.destroy()
             }
@@ -159,9 +159,9 @@ class Demo extends Phaser.Scene {
 
         this.input.on('pointerup', (point: Phaser.Types.Math.Vector2Like) => {
             if(!isDragStart) return
-            if(!enableCollide) return
+            if(!enablePointer) return
             isDragStart = false
-            enableCollide = false
+            enablePointer = false
 
             if(fruitTween) {
                 fruitTween.destroy()
@@ -174,7 +174,7 @@ class Demo extends Phaser.Scene {
             
             setTimeout(() => {
                 fruit = this.createFruite(x, y, true, API.debug ? '10' : '')
-                enableCollide = true
+                enablePointer = true
             }, 1000);
         })
 
@@ -253,7 +253,7 @@ class Demo extends Phaser.Scene {
             radius: (fruit.width / 2)
         },{
             label,
-            restitution: 0.05, // 0.3, // 反弹
+            restitution: 0.3, // 0.3, // 反弹
             friction: 0.1, // 0.1, // 摩擦系数
         })
         fruit.setStatic(isStatic)
