@@ -98,11 +98,16 @@ class Demo extends Phaser.Scene {
             isSensor: true,
             // 物体碰撞回调,
             onCollideActiveCallback: (e,body) => {
-                if (enablePointer) {
-                    if (e.bodyB.velocity.y < 1 && e.bodyA.velocity.y < 1){
-                        // 游戏结束
-                        this.events.emit('endGame')
-                    }
+                if(this.isOver) return
+                if(!enablePointer) return
+                let vA = e.bodyA.velocity.y
+                let vB = e.bodyB.velocity.y
+                let minV = Math.min(vA, vB) 
+                // 不考虑大于0的情况 大于0是下落的水果
+                // 爆炸导致的水果突然上飞 会导致游戏提前触发结束 此时的minV会小于-5
+                if (minV < 0 && minV > -5){
+                    // 游戏结束
+                    this.events.emit('endGame')
                 }
             },
 
