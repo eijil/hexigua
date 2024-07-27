@@ -55,6 +55,8 @@ class Demo extends Phaser.Scene {
         const endLineSprite = this.add.tileSprite(window_width / 2, endLineY, window_width, 8, 'endLine')
         endLineSprite.setScale(1, SCALE)
         endLineSprite.setAlpha(0)
+        endLineSprite.setData('lastCollideTime', 0)
+        endLineSprite.setData('collideNum', 0)
 
         // 果汁粒子
         const juiceColor = [0x701167, 0xff0925, 0xfe6f01, 0xffe614, 0xdeff81, 0xe61933, 0xf69a61, 0xffdd3c, 0xfffaea, 0xfc7b96]
@@ -99,22 +101,37 @@ class Demo extends Phaser.Scene {
             // 物体碰撞回调,
             onCollideActiveCallback: (e,body) => {
                 if(this.isOver) return
-                if(!enablePointer) return
-                let vA = e.bodyA.velocity.y
-                let vB = e.bodyB.velocity.y
-                let minV = Math.min(vA, vB) 
-                // 不考虑大于0的情况 大于0是下落的水果
-                // 爆炸导致的水果突然上飞 会导致游戏提前触发结束 此时的minV会小于-5
-                if (minV < 0 && minV > -5){
-                    // 游戏结束
-                    this.events.emit('endGame')
+                let inBody = e.bodyA.velocity.y === 0 ? e.bodyB : e.bodyA // 获取下落水果
+                if(inBody.gameObject.getData('callOnce') === true) return // 如果没碰撞过地面或水果 就是刚下落的水果 直接return
+
+                // let vA = e.bodyA.velocity.y
+                // let vB = e.bodyB.velocity.y                
+
+                // 1秒内触发50次碰撞才结束游戏 
+                // 这里主要避免了爆炸导致水果突然上飞 提前触发了游戏结束
+                let time = new Date().getTime()
+                let lastCollideTime = endLineSprite.getData('lastCollideTime')
+                let collideNum = endLineSprite.getData('collideNum')
+
+                if(time - lastCollideTime > 1000){
+                    endLineSprite.setData('lastCollideTime', time)
+                    endLineSprite.setData('collideNum', 0)
+                }else{
+                    if(collideNum > 50){
+                        // 游戏结束
+                        this.events.emit('endGame')
+                    }else{
+                        collideNum++
+                        endLineSprite.setData('collideNum', collideNum)
+                    }
                 }
+
             },
 
         })
         // end game
         this.events.once('endGame', () => {
-            
+            this.isOver = true
             this.input.off('pointerdown')
             this.input.off('pointermove')
             this.input.off('pointerup')
@@ -128,7 +145,6 @@ class Demo extends Phaser.Scene {
                 duration: 300,
                 onComplete: () => {
                     this.gameModal.get('endModal').setVisible(true)
-                    this.isOver = true
                     API.event.onGameOver && API.event.onGameOver(this.score)
                 }
             })
