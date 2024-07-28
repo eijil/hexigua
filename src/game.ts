@@ -292,9 +292,9 @@ class Demo extends Phaser.Scene {
                 from: 0.1, to: SCALE
             },
             ease: 'Back',
-            // 水果合并时 easeParams值太高 会导致击飞旁边的水果 甚至撞击警戒线 导致游戏提前结束，设置为1后 还是有Back效果 只是不那么强烈
+            // 水果合并时 easeParams值太高 会导致击飞旁边的水果 甚至撞击警戒线 导致游戏提前结束，设置为0后 Back效果消失 
             // 可在这个链接测试 easeParams参数效果 https://labs.phaser.io/edit.html?src=src/tweens\eases\back.js
-            easeParams: [isStatic ? 3.5 : 1], 
+            easeParams: [isStatic ? 3.5 : 0], 
             duration: 200
         })
         
