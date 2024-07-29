@@ -6,10 +6,66 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <style>*{margin:0;padding:0;}.container{overflow:hidden}</style>
     <script src="./js/index.js"></script>
+    <style>
+        .menu{position:fixed;right:0;top:0;background:rgba(0,0,0,.6);background:rgba(0,0,0,.2);padding:8px;}
+        .menu span{display:block;font-size:12px;line-height:22px;padding:0 6px;color:#fff;margin-bottom:4px;background:rgba(0,0,0,.2);}
+    </style>
 </head>
-
 <body>
     <div class="container"></div>
+    <div class="menu">
+        <span data-name="init">init</span>
+        <span data-name="restart">restart</span>
+        <span data-name="mute">mute</span>
+    </div>
 </body>
 
 </html>
+<script>
+    Array.prototype.forEach.call(document.querySelectorAll('.menu span'), (item, index) => {
+        item.onclick = function(e){
+            let name = e.target.getAttribute('data-name')
+            switch(name) {
+                case 'init': 
+                    MyGame.init({
+                        debug: false, // 设置为true 方便快速结束游戏
+                        parent: document.querySelector('.container'),
+                        // backgroundColor: '#fff', 
+                        // transparent: true,
+                        cdn: '', // 'https://storage.360buyimg.com/web-static/hexigua',
+                        event: {
+                            onStart: function(){
+                                console.log('开始游戏')
+                            },
+                            onProgress: function(v){
+                                console.log('加载进度')
+                            },
+                            onComplete: function(res){
+                                console.log('加载完成')
+                            },
+                            onGameOver: function(score){
+                                console.log('游戏结束', score)
+                            },
+                            onMessage: function(res){
+                                console.log(res.code, res.data)
+                            },
+                        }
+                        
+                    })
+                    break
+                case 'restart': // 重置游戏
+                    MyGame.onRestart()
+                    break
+                case 'mute': // 静音
+                    MyGame.setAudioMute(true)
+                    break
+                default:
+                    console.log(name)
+            }
+        }
+    })
+
+    document.querySelector('.menu span[data-name="init"]').click()
+    
+  
+</script>

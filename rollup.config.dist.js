@@ -32,7 +32,8 @@ export default {
             'typeof EXPERIMENTAL': JSON.stringify(true),
             'typeof PLUGIN_CAMERA3D': JSON.stringify(false),
             'typeof PLUGIN_FBINSTANT': JSON.stringify(false),
-            'typeof FEATURE_SOUND': JSON.stringify(true)
+            'typeof FEATURE_SOUND': JSON.stringify(true),
+            preventAssignment: true
         }),
 
         //  Parse our .ts source files
