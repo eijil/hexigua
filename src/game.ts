@@ -26,7 +26,7 @@ class Demo extends Phaser.Scene {
     }
 
     create() {
-
+        
         window_width = window.innerWidth
         window_height = window.innerHeight
         // 音效
@@ -240,6 +240,8 @@ class Demo extends Phaser.Scene {
 
         this.createEndModal()
 
+        API.event.onStart && API.event.onStart()
+
     }
 
     /**
@@ -424,7 +426,6 @@ class Demo extends Phaser.Scene {
     }
 }
 
-
 let game = null
 
 export default {
@@ -470,7 +471,6 @@ export default {
         };
 
         game = new Phaser.Game(config);
-        console.log(game)
 
     },
     // 如果结束页面不需要集成在游戏代码内 ，可通过onRestart来重置游戏
@@ -478,8 +478,6 @@ export default {
         game.scene.scenes[1].restart()
     },
     setAudioMute(isMute: boolean){
-        // audioMute = isMute
-        console.log(isMute)
         game.scene.scenes[1].setAudioMute(isMute)
     }
 }
