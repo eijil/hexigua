@@ -40,14 +40,6 @@ class Demo extends Phaser.Scene {
         const groundSprite = this.add.tileSprite(window_width / 2, window_height - 5 * Ratio, window_width + 40, 127, 'ground')
         this.matter.add.gameObject(groundSprite, { isStatic: true, label: 'ground'  })
 
-        // 初始化一个水果
-        const x = window_width / 2
-        const y = 20 * Ratio
-        let fruit = this.createFruite(x, y)
-        let fruitTween = null
-        let enablePointer = true // 启用pointer事件
-        let isDragStart = false // pc端下 触发move之前不一定会触发down
-
         // 得分
         this.scoreText = this.add.text(30, 20, `${this.score}`, { font: '45px Arial Black', color: '#ffe325' }).setStroke('#974c1e', 8);
 
@@ -57,6 +49,14 @@ class Demo extends Phaser.Scene {
         endLineSprite.setAlpha(0)
         endLineSprite.setData('lastCollideTime', 0)
         endLineSprite.setData('collideNum', 0)
+
+        // 初始化一个水果
+        const x = window_width / 2
+        const y = 20 * Ratio
+        let fruit = this.createFruite(x, y)
+        let fruitTween = null
+        let enablePointer = true // 启用pointer事件
+        let isDragStart = false // pc端下 触发move之前不一定会触发down
 
         // 果汁粒子
         const juiceColor = [0x701167, 0xff0925, 0xfe6f01, 0xffe614, 0xdeff81, 0xe61933, 0xf69a61, 0xffdd3c, 0xfffaea, 0xfc7b96]
