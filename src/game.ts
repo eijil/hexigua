@@ -40,12 +40,12 @@ class Demo extends Phaser.Scene {
         groundSprite.setTileScale(1, scale) // 缩放纹理
         this.matter.add.gameObject(groundSprite, { isStatic: true, label: 'ground' })
         // 得分
-        this.scoreText = this.add.text(30, 20, `${this.score}`, { font: '45px Arial Black', color: '#ffe325' }).setStroke('#974c1e', 8);
+        this.scoreText = this.add.text(60 * scale, 40 * scale, `${this.score}`, { font: '45px Arial Black', color: '#ffe325' }).setStroke('#974c1e', 8);
 
         // 结束警戒线
         const endLineSprite = this.add.tileSprite(window_width / 2, 160 * scale, window_width, 8 * scale, 'endLine')
         endLineSprite.setTileScale(1, scale)
-        endLineSprite.setAlpha(0)
+        // endLineSprite.setAlpha(0)
         endLineSprite.setData('lastCollideTime', 0)
         endLineSprite.setData('collideNum', 0)
 
@@ -58,7 +58,7 @@ class Demo extends Phaser.Scene {
         let isDragStart = false // pc端下 触发move之前不一定会触发down
 
         // 果汁粒子
-        const juiceColor = [0x701167, 0xff0925, 0xfe6f01, 0xffe614, 0xdeff81, 0xe61933, 0xf69a61, 0xffdd3c, 0xfffaea, 0xfc7b96]
+        const juiceColor = [0x701167, 0xff0925, 0xfe6f01, 0xffc002, 0x5ddf20, 0xe61933, 0xf69a61, 0xffdd3c, 0xfffaea, 0xfc7b96]
         for(let i=0;i<juiceColor.length;i++){
             
             const graphics = this.make.graphics({ x: 0, y: 0 }, false);
@@ -193,7 +193,7 @@ class Demo extends Phaser.Scene {
             fruit.setStatic(false)
             
             setTimeout(() => {
-                fruit = this.createFruite(x, y, true, '10')
+                fruit = this.createFruite(x, y, true)
                 enablePointer = true
             }, 1000);
         })
@@ -368,7 +368,6 @@ class Demo extends Phaser.Scene {
         // 粒子
         const positionReg = size * scale / 2
         const scaleReg = Math.min(1, size / 408) // 水果越小 粒子越小
-
         const p = this.particles.get(`juice${label}`)
         p.setConfig({
             emitting: false,
@@ -377,10 +376,10 @@ class Demo extends Phaser.Scene {
             y: { min: y-positionReg, max: y+positionReg },
             speed: { min: 10, max: 50 },
             gravityY: 0, // 重力
-            lifespan: 2000, // 生命 毫秒
+            lifespan: 3000 * scaleReg + 1000, // 生命 毫秒 最小1000  最大4000秒
             quantity: 2, // 数量每帧
 
-            scale: { end: 0.1, start: 1 * scaleReg, random: true },
+            scale: { start: 1 * scaleReg, end: 0.1, random: true },
             alpha: {  start: 0.8, end: 0, random: true},
         })
         p.emitParticle(50)
@@ -396,12 +395,12 @@ class Demo extends Phaser.Scene {
                 {
                     scale: s * 1.4,
                     ease: 'Expo.out', // 'quart.in' 'power2' 'sine.in'
-                    duration: 1200
+                    duration: 600
                 },
                 {
                     alpha: 0,
                     ease: 'Expo.in',
-                    duration: 700
+                    duration: 1200
                 },
                 // {
                 //     scale: { value: 0.5, duration: 1000 },
