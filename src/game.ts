@@ -2,11 +2,9 @@ import * as Phaser from 'phaser'
 import Preload from './preload'
 import API from './api'
 
-
-const SCALE = 0.5
-
 let window_width
 let window_height
+let scale
 
 class Demo extends Phaser.Scene {
 
@@ -28,6 +26,8 @@ class Demo extends Phaser.Scene {
         window_width = this.game.canvas.width
         window_height = this.game.canvas.height
 
+        scale = API.scale
+
         // 音效
         this.soundList.set('down', this.sound.add('down'))
         this.soundList.set('合成', this.sound.add('合成'))
@@ -36,22 +36,22 @@ class Demo extends Phaser.Scene {
         this.matter.world.setBounds().updateWall(false, 'top')
 
         // 添加地面 宽度加40 防止1号水果掉到地面之下
-        const groundSprite = this.add.tileSprite(window_width / 2, window_height - 127 * SCALE / 2, window_width, 127 * SCALE, 'ground')
-        groundSprite.setTileScale(1, SCALE) // 缩放纹理
+        const groundSprite = this.add.tileSprite(window_width / 2, window_height - 127 * scale / 2, window_width, 127 * scale, 'ground')
+        groundSprite.setTileScale(1, scale) // 缩放纹理
         this.matter.add.gameObject(groundSprite, { isStatic: true, label: 'ground' })
         // 得分
         this.scoreText = this.add.text(30, 20, `${this.score}`, { font: '45px Arial Black', color: '#ffe325' }).setStroke('#974c1e', 8);
 
         // 结束警戒线
-        const endLineSprite = this.add.tileSprite(window_width / 2, 160 * SCALE, window_width, 8 * SCALE, 'endLine')
-        endLineSprite.setTileScale(1, SCALE)
+        const endLineSprite = this.add.tileSprite(window_width / 2, 160 * scale, window_width, 8 * scale, 'endLine')
+        endLineSprite.setTileScale(1, scale)
         endLineSprite.setAlpha(0)
         endLineSprite.setData('lastCollideTime', 0)
         endLineSprite.setData('collideNum', 0)
 
         // 初始化一个水果
         const x = window_width / 2
-        const y = 80 * SCALE
+        const y = 80 * scale
         let fruit = this.createFruite(x, y)
         let fruitTween = null
         let enablePointer = true // 启用pointer事件
@@ -65,8 +65,8 @@ class Demo extends Phaser.Scene {
             const key = 'juice'+(i+1)
             graphics.fillStyle(juiceColor[i], 1);
             graphics.fillCircle(20, 20, 20); // x,y,radius 创建一个圆形
-            graphics.setScale(SCALE)
-            graphics.generateTexture(key, 40*SCALE, 40*SCALE); // 图宽度高度
+            graphics.setScale(scale)
+            graphics.generateTexture(key, 40*scale, 40*scale); // 图宽度高度
             
             let juiceParticles = this.add.particles(0, 0, key)
             juiceParticles.setDepth(10)
@@ -186,14 +186,14 @@ class Demo extends Phaser.Scene {
             if(fruitTween) {
                 fruitTween.destroy()
             }
-            let size = fruit.width / 2 * SCALE
+            let size = fruit.width / 2 * scale
             fruit.x = Math.max(size, Math.min(window_width - size, point.x))
 
             // fruit.setAwake()
             fruit.setStatic(false)
             
             setTimeout(() => {
-                fruit = this.createFruite(x, y, true)
+                fruit = this.createFruite(x, y, true, '10')
                 enablePointer = true
             }, 1000);
         })
@@ -283,14 +283,14 @@ class Demo extends Phaser.Scene {
         fruit.setStatic(isStatic)
         fruit.setData('callOnce', isStatic)
         fruit.setData('score', parseInt(label))
-        fruit.setScale(SCALE)
+        fruit.setScale(scale)
         // fruit.setSleepEvents(true, true);
 
         // 添加动画
         this.tweens.add({
             targets: fruit,
             scale: {
-                from: 0.1, to: SCALE
+                from: 0.1, to: scale
             },
             ease: 'Back',
             // 水果合并时 easeParams值太高 会导致击飞旁边的水果 甚至撞击警戒线 导致游戏提前结束，设置为0后 Back效果消失 
@@ -366,7 +366,7 @@ class Demo extends Phaser.Scene {
     // 爆汁
     createJuiceParticles(x: number, y: number, size: number, label: string,) { 
         // 粒子
-        const positionReg = size * SCALE / 2
+        const positionReg = size * scale / 2
         const scaleReg = Math.min(1, size / 408) // 水果越小 粒子越小
 
         const p = this.particles.get(`juice${label}`)
@@ -386,7 +386,7 @@ class Demo extends Phaser.Scene {
         p.emitParticle(50)
 
         // 粒子背景  果汁
-        const s = this.textures.get(label).getSourceImage().width / 319 * SCALE // 获取水果图片原始宽度 计算出爆汁背景图的scale 这个值会让图片和水果一样宽
+        const s = this.textures.get(label).getSourceImage().width / 319 * scale // 获取水果图片原始宽度 计算出爆汁背景图的scale 这个值会让图片和水果一样宽
         const image = this.add.image(x, y, 'b', `b${label}.png`) // // 果汁 没有物理属性 直接用add.image
         image.setScale(s * 0.3)
         image.setAngle(Phaser.Math.Between(-180, 180))
@@ -428,7 +428,7 @@ class Demo extends Phaser.Scene {
 let game = null
 
 export default {
-    init({ debug = false, cdn = '', parent, backgroundColor = '#ffe8a3', transparent = false, event }){
+    init({ debug = false, cdn = '', parent, scale = 1, backgroundColor = '#ffe8a3', transparent = false, event }){
         if(game) {
             console.log('init 函数只能执行一次')
             return
@@ -436,6 +436,7 @@ export default {
         API.debug = debug
         API.cdn = cdn
         API.parent = parent
+        API.scale = scale
         API.backgroundColor = backgroundColor
         API.transparent = transparent
         if(event){
