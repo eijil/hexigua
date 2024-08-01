@@ -143,7 +143,6 @@ class Demo extends Phaser.Scene {
                 repeat: 3,
                 duration: 300,
                 onComplete: () => {
-                    this.gameModal.get('endModal').setVisible(true)
                     API.event.onGameOver && API.event.onGameOver(this.score)
                 }
             })
@@ -237,8 +236,6 @@ class Demo extends Phaser.Scene {
         //碰撞事件
         this.matter.world.on('collisionstart', onCollisionStart)
 
-        this.createEndModal()
-
         API.event.onStart && API.event.onStart()
 
     }
@@ -330,29 +327,6 @@ class Demo extends Phaser.Scene {
         !this.isOver && API.event.onMessage && API.event.onMessage({code: 'score', data: {score: this.score, label}})
 
     }
-    createEndModal() {
-
-        const modalContainer = this.creatMask()
-        const centerX = window_width / 2
-
-        const gameOver = this.add.sprite(centerX, 100, 'gameOver')
-        const tryAgain = this.add.sprite(centerX, 200, 'tryagain')
-        const yes = this.add.sprite(centerX - 50, 400, 'yes')
-        const no = this.add.sprite(centerX + 50, 400, 'no')
-        gameOver.setScale(0.5)
-        tryAgain.setScale(0.5)
-        yes.setScale(0.5)
-        yes.setInteractive()
-        yes.on('pointerup', () => {
-            this.restart()
-        })
-        no.setScale(0.5)
-        modalContainer.add([gameOver, tryAgain, yes, no])
-        modalContainer.setVisible(false)
-        modalContainer.setDepth(11)
-        this.gameModal.set('endModal', modalContainer)
-
-    }
     restart() {
         this.scene.restart()
         this.score = 0;
@@ -415,13 +389,6 @@ class Demo extends Phaser.Scene {
 
     }
 
-    creatMask() {
-        const mask = this.add.graphics()
-        mask.fillStyle(0X000000, 0.7)
-        mask.fillRect(0, 0, window_width, window_height)
-        return this.add.container(0, 0, [mask])
-
-    }
 }
 
 let game = null
