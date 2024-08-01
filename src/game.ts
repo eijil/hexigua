@@ -4,9 +4,7 @@ import API from './api'
 
 
 const SCALE = 0.5
-const Ratio = window.devicePixelRatio
 
-const endLineY = 40 * Ratio
 let window_width
 let window_height
 
@@ -26,9 +24,10 @@ class Demo extends Phaser.Scene {
     }
 
     create() {
-        
-        window_width = window.innerWidth
-        window_height = window.innerHeight
+
+        window_width = this.game.canvas.width
+        window_height = this.game.canvas.height
+
         // 音效
         this.soundList.set('down', this.sound.add('down'))
         this.soundList.set('合成', this.sound.add('合成'))
@@ -37,22 +36,22 @@ class Demo extends Phaser.Scene {
         this.matter.world.setBounds().updateWall(false, 'top')
 
         // 添加地面 宽度加40 防止1号水果掉到地面之下
-        const groundSprite = this.add.tileSprite(window_width / 2, window_height - 5 * Ratio, window_width + 40, 127, 'ground')
-        this.matter.add.gameObject(groundSprite, { isStatic: true, label: 'ground'  })
-
+        const groundSprite = this.add.tileSprite(window_width / 2, window_height - 127 * SCALE / 2, window_width, 127 * SCALE, 'ground')
+        groundSprite.setTileScale(1, SCALE) // 缩放纹理
+        this.matter.add.gameObject(groundSprite, { isStatic: true, label: 'ground' })
         // 得分
         this.scoreText = this.add.text(30, 20, `${this.score}`, { font: '45px Arial Black', color: '#ffe325' }).setStroke('#974c1e', 8);
 
         // 结束警戒线
-        const endLineSprite = this.add.tileSprite(window_width / 2, endLineY, window_width, 8, 'endLine')
-        endLineSprite.setScale(1, SCALE)
+        const endLineSprite = this.add.tileSprite(window_width / 2, 160 * SCALE, window_width, 8 * SCALE, 'endLine')
+        endLineSprite.setTileScale(1, SCALE)
         endLineSprite.setAlpha(0)
         endLineSprite.setData('lastCollideTime', 0)
         endLineSprite.setData('collideNum', 0)
 
         // 初始化一个水果
         const x = window_width / 2
-        const y = 20 * Ratio
+        const y = 80 * SCALE
         let fruit = this.createFruite(x, y)
         let fruitTween = null
         let enablePointer = true // 启用pointer事件
@@ -194,7 +193,7 @@ class Demo extends Phaser.Scene {
             fruit.setStatic(false)
             
             setTimeout(() => {
-                fruit = this.createFruite(x, y, true, API.debug ? '10' : '')
+                fruit = this.createFruite(x, y, true)
                 enablePointer = true
             }, 1000);
         })
@@ -429,7 +428,7 @@ class Demo extends Phaser.Scene {
 let game = null
 
 export default {
-    init({ debug = false, cdn = '', parent = '', backgroundColor = '#ffe8a3', transparent = false, event }){
+    init({ debug = false, cdn = '', parent, backgroundColor = '#ffe8a3', transparent = false, event }){
         if(game) {
             console.log('init 函数只能执行一次')
             return
@@ -446,16 +445,16 @@ export default {
         }
 
         const config = {
-            type: Phaser.AUTO,
+            type: Phaser.AUTO, // 渲染器 AUTO 将使用webGL渲染器
             backgroundColor,
             transparent,
             parent,
+            width: parent ? parent.clientWidth : 1024,
+            height: parent ? parent.clientHeight : 768,
             scale: {
                 parent,
                 mode: Phaser.Scale.FIT,
             },
-            width: window.innerWidth,
-            height: window.innerHeight,
             physics: {
                 default: 'matter',
                 matter: {
@@ -464,7 +463,7 @@ export default {
                         x:0,
                         y: 3
                     },
-                    // debug: true
+                    debug: debug
                 }
             },
             scene: [Preload, Demo]
