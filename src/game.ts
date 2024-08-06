@@ -2,13 +2,9 @@ import * as Phaser from 'phaser'
 import Preload from './preload'
 import API from './api'
 
-
-const SCALE = 0.5
-const Ratio = window.devicePixelRatio
-
-const endLineY = 40 * Ratio
 let window_width
 let window_height
+let scale
 
 class Demo extends Phaser.Scene {
 
@@ -26,9 +22,12 @@ class Demo extends Phaser.Scene {
     }
 
     create() {
-        
-        window_width = window.innerWidth
-        window_height = window.innerHeight
+
+        window_width = this.game.canvas.width
+        window_height = this.game.canvas.height
+
+        scale = API.scale
+
         // 音效
         this.soundList.set('down', this.sound.add('down'))
         this.soundList.set('合成', this.sound.add('合成'))
@@ -37,37 +36,37 @@ class Demo extends Phaser.Scene {
         this.matter.world.setBounds().updateWall(false, 'top')
 
         // 添加地面 宽度加40 防止1号水果掉到地面之下
-        const groundSprite = this.add.tileSprite(window_width / 2, window_height - 5 * Ratio, window_width + 40, 127, 'ground')
-        this.matter.add.gameObject(groundSprite, { isStatic: true, label: 'ground'  })
-
+        const groundSprite = this.add.tileSprite(window_width / 2, window_height - 127 * scale / 2, window_width, 127 * scale, 'ground')
+        groundSprite.setTileScale(1, scale) // 缩放纹理
+        this.matter.add.gameObject(groundSprite, { isStatic: true, label: 'ground' })
         // 得分
-        this.scoreText = this.add.text(30, 20, `${this.score}`, { font: '45px Arial Black', color: '#ffe325' }).setStroke('#974c1e', 8);
+        this.scoreText = this.add.text(60 * scale, 40 * scale, `${this.score}`, { font: '45px Arial Black', color: '#ffe325' }).setStroke('#974c1e', 8);
 
         // 结束警戒线
-        const endLineSprite = this.add.tileSprite(window_width / 2, endLineY, window_width, 8, 'endLine')
-        endLineSprite.setScale(1, SCALE)
-        endLineSprite.setAlpha(0)
+        const endLineSprite = this.add.tileSprite(window_width / 2, 160 * scale, window_width, 8 * scale, 'endLine')
+        endLineSprite.setTileScale(1, scale)
+        // endLineSprite.setAlpha(0)
         endLineSprite.setData('lastCollideTime', 0)
         endLineSprite.setData('collideNum', 0)
 
         // 初始化一个水果
         const x = window_width / 2
-        const y = 20 * Ratio
+        const y = 80 * scale
         let fruit = this.createFruite(x, y)
         let fruitTween = null
         let enablePointer = true // 启用pointer事件
         let isDragStart = false // pc端下 触发move之前不一定会触发down
 
         // 果汁粒子
-        const juiceColor = [0x701167, 0xff0925, 0xfe6f01, 0xffe614, 0xdeff81, 0xe61933, 0xf69a61, 0xffdd3c, 0xfffaea, 0xfc7b96]
+        const juiceColor = [0x701167, 0xff0925, 0xfe6f01, 0xffc002, 0x5ddf20, 0xe61933, 0xf69a61, 0xffdd3c, 0xfffaea, 0xfc7b96]
         for(let i=0;i<juiceColor.length;i++){
             
             const graphics = this.make.graphics({ x: 0, y: 0 }, false);
             const key = 'juice'+(i+1)
             graphics.fillStyle(juiceColor[i], 1);
             graphics.fillCircle(20, 20, 20); // x,y,radius 创建一个圆形
-            graphics.setScale(SCALE)
-            graphics.generateTexture(key, 40*SCALE, 40*SCALE); // 图宽度高度
+            graphics.setScale(scale)
+            graphics.generateTexture(key, 40*scale, 40*scale); // 图宽度高度
             
             let juiceParticles = this.add.particles(0, 0, key)
             juiceParticles.setDepth(10)
@@ -144,7 +143,6 @@ class Demo extends Phaser.Scene {
                 repeat: 3,
                 duration: 300,
                 onComplete: () => {
-                    this.gameModal.get('endModal').setVisible(true)
                     API.event.onGameOver && API.event.onGameOver(this.score)
                 }
             })
@@ -178,7 +176,8 @@ class Demo extends Phaser.Scene {
             if(fruit) fruit.x = point.x
         })
 
-        this.input.on('pointerup', (point: Phaser.Types.Math.Vector2Like) => {
+        const pointerupHandle = (point: Phaser.Types.Math.Vector2Like) => {
+            
             if(!isDragStart) return
             if(!enablePointer) return
             isDragStart = false
@@ -187,17 +186,19 @@ class Demo extends Phaser.Scene {
             if(fruitTween) {
                 fruitTween.destroy()
             }
-            let size = fruit.width / 2 * SCALE
+            let size = fruit.width / 2 * scale
             fruit.x = Math.max(size, Math.min(window_width - size, point.x))
 
             // fruit.setAwake()
             fruit.setStatic(false)
             
             setTimeout(() => {
-                fruit = this.createFruite(x, y, true, API.debug ? '10' : '')
+                fruit = this.createFruite(x, y, true)
                 enablePointer = true
             }, 1000);
-        })
+        }
+        this.input.on('pointerup', pointerupHandle)
+        this.input.on('pointerupoutside', pointerupHandle)
 
         const onCollisionStart = (event: any) => {
             const paris = event.source.pairs.list
@@ -237,8 +238,6 @@ class Demo extends Phaser.Scene {
         }
         //碰撞事件
         this.matter.world.on('collisionstart', onCollisionStart)
-
-        this.createEndModal()
 
         API.event.onStart && API.event.onStart()
 
@@ -284,14 +283,14 @@ class Demo extends Phaser.Scene {
         fruit.setStatic(isStatic)
         fruit.setData('callOnce', isStatic)
         fruit.setData('score', parseInt(label))
-        fruit.setScale(SCALE)
+        fruit.setScale(scale)
         // fruit.setSleepEvents(true, true);
 
         // 添加动画
         this.tweens.add({
             targets: fruit,
             scale: {
-                from: 0.1, to: SCALE
+                from: 0.1, to: scale
             },
             ease: 'Back',
             // 水果合并时 easeParams值太高 会导致击飞旁边的水果 甚至撞击警戒线 导致游戏提前结束，设置为0后 Back效果消失 
@@ -331,29 +330,6 @@ class Demo extends Phaser.Scene {
         !this.isOver && API.event.onMessage && API.event.onMessage({code: 'score', data: {score: this.score, label}})
 
     }
-    createEndModal() {
-
-        const modalContainer = this.creatMask()
-        const centerX = window_width / 2
-
-        const gameOver = this.add.sprite(centerX, 100, 'gameOver')
-        const tryAgain = this.add.sprite(centerX, 200, 'tryagain')
-        const yes = this.add.sprite(centerX - 50, 400, 'yes')
-        const no = this.add.sprite(centerX + 50, 400, 'no')
-        gameOver.setScale(0.5)
-        tryAgain.setScale(0.5)
-        yes.setScale(0.5)
-        yes.setInteractive()
-        yes.on('pointerup', () => {
-            this.restart()
-        })
-        no.setScale(0.5)
-        modalContainer.add([gameOver, tryAgain, yes, no])
-        modalContainer.setVisible(false)
-        modalContainer.setDepth(11)
-        this.gameModal.set('endModal', modalContainer)
-
-    }
     restart() {
         this.scene.restart()
         this.score = 0;
@@ -367,9 +343,8 @@ class Demo extends Phaser.Scene {
     // 爆汁
     createJuiceParticles(x: number, y: number, size: number, label: string,) { 
         // 粒子
-        const positionReg = size * SCALE / 2
+        const positionReg = size * scale / 2
         const scaleReg = Math.min(1, size / 408) // 水果越小 粒子越小
-
         const p = this.particles.get(`juice${label}`)
         p.setConfig({
             emitting: false,
@@ -378,16 +353,16 @@ class Demo extends Phaser.Scene {
             y: { min: y-positionReg, max: y+positionReg },
             speed: { min: 10, max: 50 },
             gravityY: 0, // 重力
-            lifespan: 2000, // 生命 毫秒
+            lifespan: 3000 * scaleReg + 1000, // 生命 毫秒 最小1000  最大4000秒
             quantity: 2, // 数量每帧
 
-            scale: { end: 0.1, start: 1 * scaleReg, random: true },
+            scale: { start: 1 * scaleReg, end: 0.1, random: true },
             alpha: {  start: 0.8, end: 0, random: true},
         })
         p.emitParticle(50)
 
         // 粒子背景  果汁
-        const s = this.textures.get(label).getSourceImage().width / 319 * SCALE // 获取水果图片原始宽度 计算出爆汁背景图的scale 这个值会让图片和水果一样宽
+        const s = this.textures.get(label).getSourceImage().width / 319 * scale // 获取水果图片原始宽度 计算出爆汁背景图的scale 这个值会让图片和水果一样宽
         const image = this.add.image(x, y, 'b', `b${label}.png`) // // 果汁 没有物理属性 直接用add.image
         image.setScale(s * 0.3)
         image.setAngle(Phaser.Math.Between(-180, 180))
@@ -397,12 +372,12 @@ class Demo extends Phaser.Scene {
                 {
                     scale: s * 1.4,
                     ease: 'Expo.out', // 'quart.in' 'power2' 'sine.in'
-                    duration: 1200
+                    duration: 600
                 },
                 {
                     alpha: 0,
                     ease: 'Expo.in',
-                    duration: 700
+                    duration: 1200
                 },
                 // {
                 //     scale: { value: 0.5, duration: 1000 },
@@ -417,19 +392,12 @@ class Demo extends Phaser.Scene {
 
     }
 
-    creatMask() {
-        const mask = this.add.graphics()
-        mask.fillStyle(0X000000, 0.7)
-        mask.fillRect(0, 0, window_width, window_height)
-        return this.add.container(0, 0, [mask])
-
-    }
 }
 
 let game = null
 
 export default {
-    init({ debug = false, cdn = '', parent = '', backgroundColor = '#ffe8a3', transparent = false, event }){
+    init({ debug = false, cdn = '', parent, scale = 1, backgroundColor = '#ffe8a3', transparent = false, event }){
         if(game) {
             console.log('init 函数只能执行一次')
             return
@@ -437,6 +405,7 @@ export default {
         API.debug = debug
         API.cdn = cdn
         API.parent = parent
+        API.scale = scale
         API.backgroundColor = backgroundColor
         API.transparent = transparent
         if(event){
@@ -446,16 +415,16 @@ export default {
         }
 
         const config = {
-            type: Phaser.AUTO,
+            type: Phaser.AUTO, // 渲染器 AUTO 将使用webGL渲染器
             backgroundColor,
             transparent,
             parent,
+            width: parent ? parent.clientWidth : 1024,
+            height: parent ? parent.clientHeight : 768,
             scale: {
                 parent,
                 mode: Phaser.Scale.FIT,
             },
-            width: window.innerWidth,
-            height: window.innerHeight,
             physics: {
                 default: 'matter',
                 matter: {
@@ -464,7 +433,7 @@ export default {
                         x:0,
                         y: 3
                     },
-                    // debug: true
+                    debug: debug
                 }
             },
             scene: [Preload, Demo]

@@ -1,6 +1,7 @@
 const API = {
     debug: false,
     parent: '',
+    scale: 1,
     backgroundColor: '',
     transparent: false, // 在没设置backgroundColor的情况下，可以transparent：true让canvas背景透明
     cdn: '',
