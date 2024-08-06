@@ -7,13 +7,14 @@
     <style>*{margin:0;padding:0;}.container{overflow:hidden}</style>
     <script src="./js/index.js"></script>
     <style>
+        .container[full-screen="true"]{width:100vw;height:100vh;margin:auto;}
+        .container:not([full-screen="true"]){width:375px;height:603px;margin:auto;}
         .menu{position:fixed;right:0;top:0;background:rgba(0,0,0,.6);background:rgba(0,0,0,.2);padding:8px;}
         .menu span{display:block;font-size:12px;line-height:22px;padding:0 6px;color:#fff;margin-bottom:4px;background:rgba(0,0,0,.2);}
     </style>
 </head>
 <body>
-    <div class="container" style="width:375px;height:667px;margin:auto;"></div>
-    <!-- <div class="container" style="width:100vw;height:100vh;margin:auto;"></div> -->
+    <div class="container" full-screen="true"></div>
     <div class="menu">
         <span data-name="init">init</span>
         <span data-name="restart">restart</span>
@@ -23,58 +24,69 @@
 
 </html>
 <script>
-    Array.prototype.forEach.call(document.querySelectorAll('.menu span'), (item, index) => {
-        item.onclick = function(e){
-            let name = e.target.getAttribute('data-name')
-            
-            switch(name) {
-                case 'init': 
-                    let parent = document.querySelector('.container')
+    let parent = document.querySelector('.container')
+    let isMute = false // 是否静音
+    let isFullScreen = document.querySelector('.container').getAttribute('full-screen') === 'true' ? true : false // 是否全屏
+    let scale // 游戏内部元素的缩放，不是画布的缩放，画布的尺寸根据parent元素的clientWidth、clientHeight来设置的
+
+    // 游戏适配有两种方式：1、固定比例适配 2、全屏适配
+    // 固定比例适配需要注意：
+    // 1、需要考虑周围填充扩展内容。除了扩展内容游戏部分的ui尺寸建议是750 * 1206，网页下还有顶部title栏
+    // 2、scale值应该设置为 parent.clientWidth / 750
+    // 全屏适配需要注意：
+    // 1、因为设备尺寸不同，考虑游戏公平性，防止ipad下游戏分数过于高的离谱，需要根据最大水果与屏幕的面积比例关系来计算scale的值
+
+    if(isFullScreen) {
+        scale = Math.sqrt(parent.clientWidth * parent.clientHeight * (408 * 408) / (750 * 1206)) / 408
+    }else{
+        scale = parent.clientWidth / 750
+    }
+
+    document.querySelector('.menu').addEventListener('click', (e) => {
+        let target = e.target
+        let name = target.getAttribute('data-name')
+        if(target.nodeName !== 'SPAN' || !name) return
+
+        switch(name) {
+            case 'init': 
+                MyGame.init({
+                    debug: false, // 设置为true 方便快速结束游戏
+                    parent, // canvas 会根据parent元素的clientWidth、clientHeight来设置宽高
+                    scale, // scale控制游戏元素缩放
+                    // backgroundColor: '#fff', 
+                    // transparent: true,
+                    cdn: '', // 'https://storage.360buyimg.com/web-static/hexigua',
+                    event: {
+                        onStart: function(){
+                            console.log('开始游戏')
+                        },
+                        onProgress: function(v){
+                            console.log('加载进度')
+                        },
+                        onComplete: function(res){
+                            console.log('加载完成')
+                        },
+                        onGameOver: function(score){
+                            console.log('游戏结束', score)
+                        },
+                        onMessage: function(res){
+                            console.log(res.code, res.data)
+                        },
+                    }
                     
-                    MyGame.init({
-                        debug: false, // 设置为true 方便快速结束游戏
-                        parent, // 画布宽高根据元素宽高来设置
-
-                        // scale控制元素缩放
-                        // 如果parent是固定宽高的方式 scale 可以设置为 parent.clientWidth / 750
-                        // 以元素ui尺寸 750*1334为基准的
-                        // scale: parent.clientWidth / 750,
-                        // 如果parent是全屏模式，考虑到不同设备下游戏的公平性 scale应该根据最大水果与屏幕的面积比例来计算 如下：
-                        // scale: Math.sqrt(parent.clientWidth * parent.clientHeight * (408 * 408) / (750 * 1334))/ 408,
-
-                        // backgroundColor: '#fff', 
-                        // transparent: true,
-                        cdn: '', // 'https://storage.360buyimg.com/web-static/hexigua',
-                        event: {
-                            onStart: function(){
-                                console.log('开始游戏')
-                            },
-                            onProgress: function(v){
-                                console.log('加载进度')
-                            },
-                            onComplete: function(res){
-                                console.log('加载完成')
-                            },
-                            onGameOver: function(score){
-                                console.log('游戏结束', score)
-                            },
-                            onMessage: function(res){
-                                console.log(res.code, res.data)
-                            },
-                        }
-                        
-                    })
-                    break
-                case 'restart': // 重置游戏
-                    MyGame.onRestart()
-                    break
-                case 'mute': // 静音
-                    MyGame.setAudioMute(true)
-                    break
-                default:
-                    console.log(name)
-            }
+                })
+                break
+            case 'restart': // 重置游戏
+                MyGame.onRestart()
+                break
+            case 'mute': // 静音
+                isMute = !isMute
+                MyGame.setAudioMute(isMute)
+                break
+            default:
+                console.log(name)
         }
+
     })
 
     document.querySelector('.menu span[data-name="init"]').click()
