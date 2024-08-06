@@ -176,7 +176,8 @@ class Demo extends Phaser.Scene {
             if(fruit) fruit.x = point.x
         })
 
-        this.input.on('pointerupoutside', (point: Phaser.Types.Math.Vector2Like) => {
+        const pointerupHandle = (point: Phaser.Types.Math.Vector2Like) => {
+            
             if(!isDragStart) return
             if(!enablePointer) return
             isDragStart = false
@@ -195,7 +196,9 @@ class Demo extends Phaser.Scene {
                 fruit = this.createFruite(x, y, true)
                 enablePointer = true
             }, 1000);
-        })
+        }
+        this.input.on('pointerup', pointerupHandle)
+        this.input.on('pointerupoutside', pointerupHandle)
 
         const onCollisionStart = (event: any) => {
             const paris = event.source.pairs.list
