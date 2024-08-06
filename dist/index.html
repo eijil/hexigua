@@ -12,8 +12,8 @@
     </style>
 </head>
 <body>
-    <!-- <div class="container" style="width:375px;height:667px;margin:auto;"></div> -->
-    <div class="container" style="width:100vw;height:100vh;margin:auto;"></div>
+    <div class="container" style="width:375px;height:667px;margin:auto;"></div>
+    <!-- <div class="container" style="width:100vw;height:100vh;margin:auto;"></div> -->
     <div class="menu">
         <span data-name="init">init</span>
         <span data-name="restart">restart</span>
@@ -34,12 +34,13 @@
                     MyGame.init({
                         debug: false, // 设置为true 方便快速结束游戏
                         parent, // 画布宽高根据元素宽高来设置
-                        // 控制元素缩放
-                        // 如果parent是固定宽高的方式 scale 可以设置为 parent.clientWidth / 750 以元素ui尺寸 750*1334为基准的
-                        // scale: parent.clientWidth / 750,
 
-                        // 如果parent是全屏模式 scale 应该根据最大水果与屏幕的面积比例来计算 如下：
-                        scale: Math.sqrt(parent.clientWidth * parent.clientHeight * (408 * 408) / (750 * 1334))/ 408,
+                        // scale控制元素缩放
+                        // 如果parent是固定宽高的方式 scale 可以设置为 parent.clientWidth / 750
+                        // 以元素ui尺寸 750*1334为基准的
+                        scale: parent.clientWidth / 750,
+                        // 如果parent是全屏模式，考虑到不同设备下游戏的公平性 scale应该根据最大水果与屏幕的面积比例来计算 如下：
+                        // scale: Math.sqrt(parent.clientWidth * parent.clientHeight * (408 * 408) / (750 * 1334))/ 408,
 
                         // backgroundColor: '#fff', 
                         // transparent: true,

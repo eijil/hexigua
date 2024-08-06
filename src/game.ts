@@ -176,7 +176,7 @@ class Demo extends Phaser.Scene {
             if(fruit) fruit.x = point.x
         })
 
-        this.input.on('pointerup', (point: Phaser.Types.Math.Vector2Like) => {
+        this.input.on('pointerupoutside', (point: Phaser.Types.Math.Vector2Like) => {
             if(!isDragStart) return
             if(!enablePointer) return
             isDragStart = false
