@@ -57,6 +57,16 @@ class Demo extends Phaser.Scene {
         let enablePointer = true // 启用pointer事件
         let isDragStart = false // pc端下 触发move之前不一定会触发down
 
+        // let num = 0
+        // let timer = setInterval(()=>{
+        //     num++
+        //     if(num>100) {
+        //         clearInterval(timer)
+        //         return
+        //     }
+        //     this.createFruite(x,y,false)
+        // },200)
+
         // 果汁粒子
         const juiceColor = [0x701167, 0xff0925, 0xfe6f01, 0xffc002, 0x5ddf20, 0xe61933, 0xf69a61, 0xffdd3c, 0xfffaea, 0xfc7b96]
         for(let i=0;i<juiceColor.length;i++){
@@ -189,7 +199,7 @@ class Demo extends Phaser.Scene {
             let size = fruit.width / 2 * scale
             fruit.x = Math.max(size, Math.min(window_width - size, point.x))
 
-            // fruit.setAwake()
+            fruit.setAwake()
             fruit.setStatic(false)
             
             setTimeout(() => {
@@ -277,9 +287,11 @@ class Demo extends Phaser.Scene {
             label,
             restitution: 0.3, // 0.3, // 反弹
             friction: 0.1, // 0.1, // 摩擦系数
-            // density: 0.01, // 密度 默认 0.001	
-            // mass: 1 // 质量
+            // density: 0.1, // 密度 默认 0.001	
+            // mass: 1, // 质量
+            // mass: 2, inverseMass: 1/2
         })
+
         fruit.setStatic(isStatic)
         fruit.setData('callOnce', isStatic)
         fruit.setData('score', parseInt(label))
@@ -428,9 +440,9 @@ export default {
             physics: {
                 default: 'matter',
                 matter: {
-                    // enableSleeping: true,
+                    enableSleeping: true,
                     gravity:{ 
-                        x:0,
+                        x: 0,
                         y: 3
                     },
                     debug: debug
