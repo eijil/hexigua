@@ -189,7 +189,7 @@ class Demo extends Phaser.Scene {
             let size = fruit.width / 2 * scale
             fruit.x = Math.max(size, Math.min(window_width - size, point.x))
 
-            // fruit.setAwake()
+            fruit.setAwake()
             fruit.setStatic(false)
             
             setTimeout(() => {
@@ -277,9 +277,11 @@ class Demo extends Phaser.Scene {
             label,
             restitution: 0.3, // 0.3, // 反弹
             friction: 0.1, // 0.1, // 摩擦系数
-            // density: 0.01, // 密度 默认 0.001	
-            // mass: 1 // 质量
+            // density: 0.1, // 密度 默认 0.001	
+            // mass: 1, // 质量
+            // mass: 2, inverseMass: 1/2
         })
+
         fruit.setStatic(isStatic)
         fruit.setData('callOnce', isStatic)
         fruit.setData('score', parseInt(label))
@@ -428,9 +430,9 @@ export default {
             physics: {
                 default: 'matter',
                 matter: {
-                    // enableSleeping: true,
+                    enableSleeping: true,
                     gravity:{ 
-                        x:0,
+                        x: 0,
                         y: 3
                     },
                     debug: debug
