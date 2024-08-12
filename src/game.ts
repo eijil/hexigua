@@ -57,16 +57,6 @@ class Demo extends Phaser.Scene {
         let enablePointer = true // 启用pointer事件
         let isDragStart = false // pc端下 触发move之前不一定会触发down
 
-        // let num = 0
-        // let timer = setInterval(()=>{
-        //     num++
-        //     if(num>100) {
-        //         clearInterval(timer)
-        //         return
-        //     }
-        //     this.createFruite(x,y,false)
-        // },200)
-
         // 果汁粒子
         const juiceColor = [0x701167, 0xff0925, 0xfe6f01, 0xffc002, 0x5ddf20, 0xe61933, 0xf69a61, 0xffdd3c, 0xfffaea, 0xfc7b96]
         for(let i=0;i<juiceColor.length;i++){
